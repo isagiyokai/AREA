@@ -160,3 +160,36 @@ button{color:inherit}
 @media(max-width:780px){.layout{grid-template-columns:155px minmax(0,1fr)}.right{display:none}.front-note{grid-template-columns:minmax(0,1fr) 220px}}
 @media(max-width:620px){.shell{padding:0 15px}.top{height:64px;gap:10px}.brand{font-size:30px}.nav{gap:12px;font-size:10px}.nav a:nth-child(n+2),.nav-muted{display:none}.top-actions{gap:9px}.account-link{font-size:10px}.top-actions .btn{padding:8px 10px;font-size:10px}.front-note{grid-template-columns:1fr;padding:32px 0 25px;gap:18px}.front-copy h1{font-size:52px;letter-spacing:-2.7px}.front-aside{display:none}.layout{grid-template-columns:1fr;padding-top:16px}.left{display:none}.section-rule{font-size:8px}.compose{padding:13px;margin-bottom:15px}.compose textarea{font-size:15px}.content{font-size:14px}.site-footer{font-size:8px}.auth{padding:14px}.authbox{padding:22px}.notification-item{align-items:flex-start;flex-direction:column}.notification-actions{flex-direction:row;align-items:center}.intensity-options{grid-template-columns:1fr}.intensity-option{padding:9px 10px}.challenge-card{align-items:flex-start}.challenge-card-actions{width:100%;justify-content:flex-start}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+
+/* Citizen account and profile editor */
+.account-shell{padding-bottom:30px}
+.account-top-links{display:flex;align-items:center;gap:20px;font-size:11px;font-weight:700}
+.account-top-links form{margin:0}
+.account-intro{padding:35px 0 24px;border-bottom:1px solid var(--line)}
+.account-intro h1{font:700 clamp(38px,5vw,58px)/1 Georgia,serif;letter-spacing:-2px;margin:12px 0}
+.account-intro p{font:11px 'Courier New',monospace;color:var(--muted)}
+.account-intro p span{color:var(--accent);padding:0 5px}
+.account-grid{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:24px;padding-top:22px;align-items:start}
+.profile-editor{background:var(--paper);border:1px solid var(--line);padding:20px}
+.profile-editor-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:18px}
+.profile-editor-head .heading{font-size:21px;margin:8px 0 0}
+.profile-edit-mark{font:9px 'Courier New',monospace;color:var(--muted)}
+.profile-field{display:grid;gap:7px;margin:14px 0}
+.profile-field>span{display:flex;justify-content:space-between;font-size:11px;font-weight:700}
+.profile-field small{font:10px 'Courier New',monospace;color:var(--muted)}
+.profile-field input,.profile-field textarea{width:100%;background:#fffefa;border:1px solid var(--line);padding:12px;color:var(--ink);font:13px Arial,sans-serif;outline:none}
+.profile-field textarea{resize:vertical;line-height:1.5}
+.profile-field input:focus,.profile-field textarea:focus{border-color:var(--accent)}
+.username-input{display:flex;align-items:center;background:#fffefa;border:1px solid var(--line)}
+.username-input:focus-within{border-color:var(--accent)}
+.username-input>span{padding-left:12px;color:var(--accent);font:13px 'Courier New',monospace}
+.username-input input{border:0}
+.profile-editor-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:14px;margin-top:18px}
+.account-side{background:var(--paper-deep);border:1px solid var(--line);padding:16px}
+.account-class{font:700 32px Georgia,serif;color:var(--accent);margin:13px 0}
+.account-side>p{font:italic 13px/1.55 Georgia,serif;color:#625d55}
+.account-stat{border-top:1px solid var(--line);padding-top:12px;margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.account-stat span{font:9px 'Courier New',monospace;color:var(--muted)}
+.account-stat strong{font-size:12px}
+.nav-notice{display:inline-grid;place-items:center;min-width:17px;height:17px;border-radius:50%;padding:0 4px;margin-left:5px;background:var(--accent);color:#fff;font:9px Arial,sans-serif}
+@media(max-width:700px){.account-grid{grid-template-columns:1fr}.account-side{order:-1}.profile-editor-foot{align-items:flex-start;flex-direction:column}.account-top-links{gap:12px}}
