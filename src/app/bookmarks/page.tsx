@@ -19,7 +19,7 @@ export default async function BookmarksPage(){
  return <main className="shell bookmarks-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><nav className="nav"><Link href="/">The street</Link><Link href="/gbas-gbos">Gbas Gbos</Link><Link href="/explore">Explore</Link></nav><div className="top-actions"><Link className="account-link" href="/account">My account</Link></div></header>
   <section className="bookmarks-intro"><span className="eyebrow">YOUR CORNER / PRIVATE COLLECTION</span><h1>Posts worth keeping.</h1><p>Only you can see what you've saved. Keep the gist close.</p></section>
-  <Feed initialPosts={hydrated as Parameters<typeof Feed>[0]["initialPosts"]} initialFollowingPosts={[]} signedIn={true} currentUserId={user.id} loadFallback={false} emptyMessage="Nothing saved yet. Save a post when you want to come back to it."/>
+  <Feed initialPosts={hydrated as Parameters<typeof Feed>[0]["initialPosts"]} initialFollowingPosts={[]} signedIn={true} currentUserId={user.id} loadFallback={false} emptyMessage="Nothing saved yet. Save a post when you want to come back to it." streamTitle="Your saved posts"/>
   <footer className="site-footer"><span>AREA © 2026</span><span>A Nigerian digital society.</span><Link href="/">Back to the street ↗</Link></footer>
  </main>;
 }
