@@ -80,8 +80,8 @@ export default async function Home() {
     <div className="talk-panel" id="talking-points">
      <div className="talk-heading"><span className="mini-label">GBAS GBOS</span><Link className="talk-count" href="/gbas-gbos">ENTER THE RING ↗</Link></div>
      <h2>Wetin dey your mind?</h2>
-     <Link className="talk-item" href="/gbas-gbos"><span>01 / FOOD</span><strong>Jollof rice: who really get am?</strong><small>Take it to Gbas Gbos ↗</small></a>
-     <a className="talk-item" href="#feed"><span>02 / EVERYDAY LIFE</span><strong>Soft life or hustle culture?</strong><small>Take it to Gbas Gbos ↗</small></a>
+     <Link className="talk-item" href="/gbas-gbos"><span>01 / FOOD</span><strong>Jollof rice: who really get am?</strong><small>Take it to Gbas Gbos ↗</small></Link>
+     <Link className="talk-item" href="/gbas-gbos"><span>02 / EVERYDAY LIFE</span><strong>Soft life or hustle culture?</strong><small>Take it to Gbas Gbos ↗</small></Link>
      <a className="talk-item" href="#feed"><span>03 / CULTURE</span><strong>Which Nigerian slang needs to retire?</strong><small>Take it to Gbas Gbos ↗</small></a>
     </div>
     <div className="right-note"><span className="mini-label">A SMALL REMINDER</span><p>Talk your talk. Disagree well. You can always leave a conversation that has gone too far.</p></div>
