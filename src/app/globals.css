@@ -35,7 +35,7 @@ button{color:inherit}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
-.front-note{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:40px;align-items:end;padding:46px 0 38px}
+.front-note{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:40px;align-items:flex-end;padding:46px 0 38px}
 .eyebrow,.mini-label{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);font-weight:800}
 .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:1px}
 .front-copy h1{font:700 clamp(46px,6.2vw,76px)/.93 Georgia,'Times New Roman',serif;letter-spacing:-3.8px;margin:15px 0 12px}
@@ -46,7 +46,7 @@ button{color:inherit}
 .front-aside p{font:italic 20px/1.35 Georgia,serif;margin:13px 0 22px}
 .section-rule{display:flex;justify-content:space-between;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);padding:10px 0;font:9px 'Courier New',monospace;letter-spacing:1.2px;color:var(--muted)}
 .section-rule span:first-child{color:var(--accent);font-weight:bold}
-.layout{display:grid;grid-template-columns:190px minmax(0,1fr) 245px;gap:28px;align-items:start;padding-top:24px}
+.layout{display:grid;grid-template-columns:190px minmax(0,1fr) 245px;gap:28px;align-items:flex-start;padding-top:24px}
 .left,.right{position:sticky;top:20px}
 .rail-block{padding:0 0 22px;border-bottom:1px solid var(--line);margin-bottom:20px}
 .rail-title{font:700 16px Georgia,serif;margin:0 0 14px}
@@ -169,9 +169,9 @@ button{color:inherit}
 .account-intro h1{font:700 clamp(38px,5vw,58px)/1 Georgia,serif;letter-spacing:-2px;margin:12px 0}
 .account-intro p{font:11px 'Courier New',monospace;color:var(--muted)}
 .account-intro p span{color:var(--accent);padding:0 5px}
-.account-grid{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:24px;padding-top:22px;align-items:start}
+.account-grid{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:24px;padding-top:22px;align-items:flex-start}
 .profile-editor{background:var(--paper);border:1px solid var(--line);padding:20px}
-.profile-editor-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:18px}
+.profile-editor-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
 .profile-editor-head .heading{font-size:21px;margin:8px 0 0}
 .profile-edit-mark{font:9px 'Courier New',monospace;color:var(--muted)}
 .profile-field{display:grid;gap:7px;margin:14px 0}
@@ -207,7 +207,7 @@ button{color:inherit}
 .citizen-meta{display:flex;gap:22px;flex-wrap:wrap;font:9px 'Courier New',monospace;letter-spacing:.7px;color:var(--muted)}
 .citizen-meta span+span{color:var(--accent)}
 .citizen-activity{max-width:760px;padding-top:22px}
-.citizen-activity-head{display:flex;justify-content:space-between;align-items:end;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.citizen-activity-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
 .citizen-activity-head h2{font:700 22px Georgia,serif;margin:7px 0 0}
 .citizen-post-count{font:10px 'Courier New',monospace;color:var(--muted)}
 .citizen-post{padding:17px 0;border-bottom:1px solid var(--line)}
