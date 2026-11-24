@@ -314,3 +314,6 @@ button{color:inherit}
 @media(max-width:850px){.gbas-grid{grid-template-columns:minmax(0,1fr) 260px;gap:18px}}
 @media(max-width:680px){.gbas-masthead{padding:32px 0 25px}.gbas-masthead h1{font-size:62px;letter-spacing:-3px}.gbas-stamp{width:112px;min-width:112px;padding:10px 5px}.gbas-stamp strong{font-size:15px}.gbas-masthead p{font-size:13px}.gbas-grid{grid-template-columns:1fr}.gbas-side{grid-template-columns:1fr 1fr;align-items:start}.gbas-rule{font-size:8px}.gbas-start{padding:14px}}
 @media(max-width:480px){.gbas-masthead{align-items:flex-start}.gbas-stamp{display:none}.gbas-masthead h1{font-size:56px}.gbas-side{grid-template-columns:1fr}.gbas-section-head h2{font-size:21px}.gbas-rule span:last-child{max-width:52%;text-align:right}}
+
+.gbas-post-sort{display:flex;gap:3px;align-items:center}.gbas-post-sort button{border:1px solid #d9d2c6;background:transparent;padding:7px 9px;color:#777168;font:9px 'Courier New',monospace;cursor:pointer}.gbas-post-sort button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+@media(max-width:480px){.gbas-post-sort button{padding:6px 7px;font-size:8px}}
