@@ -3,11 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import Feed from "@/components/feed";
 
 export const dynamic = "force-dynamic";
+type FeedPost={id:string;content:string;created_at:string;author_id:string;quoted_post_id:string|null;profiles:{username:string;display_name:string;area_class:string}[];quoted_post?:{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}|null};
 
 export default async function Home() {
  const supabase=await createClient();
- let posts: Array<{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}>= [];
- let followingPosts: typeof posts=[];
+ let posts: FeedPost[]=[];
+ let followingPosts: FeedPost[]=[];
  let signedIn=false;
  let currentUserId:string|null=null;
  let unreadCount=0;
@@ -15,7 +16,7 @@ export default async function Home() {
   const {data:{user}}=await supabase.auth.getUser();
   signedIn=!!user;
   currentUserId=user?.id??null;
-  const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class),quoted_post:posts!posts_quoted_post_id_fkey(id,content,created_at,author_id,profiles!posts_author_id_fkey(username,display_name,area_class))").order("created_at",{ascending:false}).limit(40);
+  const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
   if(postError)console.error("AREA street feed query failed:",postError.message);
   if(postData)posts=postData as typeof posts;
   const unreadQuery=user
@@ -28,8 +29,15 @@ export default async function Home() {
   unreadCount=unread.count??0;
   if(user){
    const circleAuthors=[user.id,...(followRows.data??[]).map(row=>row.followed_id)];
-   const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class),quoted_post:posts!posts_quoted_post_id_fkey(id,content,created_at,author_id,profiles!posts_author_id_fkey(username,display_name,area_class))").in("author_id",circleAuthors).order("created_at",{ascending:false}).limit(40);
+   const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("author_id",circleAuthors).order("created_at",{ascending:false}).limit(40);
    if(circleData)followingPosts=circleData as typeof posts;
+  }
+  const quoteIds=Array.from(new Set([...posts,...followingPosts].flatMap(p=>p.quoted_post_id?[p.quoted_post_id]:[])));
+  if(quoteIds.length){
+   const {data:quoteRows}=await supabase.from("posts").select("id,content,created_at,author_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("id",quoteIds);
+   const quoteMap=new Map((quoteRows??[]).map(q=>[q.id,q]));
+   posts=posts.map(p=>({...p,quoted_post:p.quoted_post_id?quoteMap.get(p.quoted_post_id)??null:null}));
+   followingPosts=followingPosts.map(p=>({...p,quoted_post:p.quoted_post_id?quoteMap.get(p.quoted_post_id)??null:null}));
   }
  }
  return <main className="shell">
