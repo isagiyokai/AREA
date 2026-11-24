@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import ProfileEditor from "@/components/profile-editor";
 
 type Notification = {
  id:string;
@@ -22,13 +23,16 @@ export default async function Account(){
  ]);
  const items=(notifications??[]) as Notification[];
  const unread=items.filter(n=>!n.read_at).length;
- return <main className="shell">
-  <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><Link href="/" className="btn">The street</Link></header>
-  <section className="hero"><div className="eyebrow">Citizen profile</div><h1>{profile?.display_name||"AREA Citizen"}</h1><p>@{profile?.username||"citizen"} · <span className="green">{(profile?.area_class||"slums").toUpperCase()}</span></p></section>
-  <section className="panel account-panel"><h2 className="heading">Your details</h2><p className="muted">{profile?.bio||"Your story in AREA is just beginning."}</p><p className="notice">Joined {profile?.created_at?new Date(profile.created_at).toLocaleDateString():"recently"}</p><form action="/auth/signout" method="post"><button className="btn">Sign out</button></form></section>
+ return <main className="shell account-shell">
+  <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><form action="/auth/signout" method="post"><button className="text-action" type="submit">Sign out</button></form></div></header>
+  <section className="account-intro"><div className="eyebrow">Citizen file / {profile?.area_class?.toUpperCase()||"SLUMS"}</div><h1>{profile?.display_name||"AREA Citizen"}</h1><p>@{profile?.username||"citizen"} <span>·</span> Joined {profile?.created_at?new Date(profile.created_at).toLocaleDateString():"recently"}</p></section>
+  <div className="account-grid">
+   <div className="account-main"><ProfileEditor userId={user.id} initialDisplayName={profile?.display_name||""} initialUsername={profile?.username||""} initialBio={profile?.bio||""}/></div>
+   <aside className="account-side"><span className="mini-label">YOUR PLACE IN AREA</span><div className="account-class">{(profile?.area_class||"slums").toUpperCase()}</div><p>Everybody starts somewhere. Your name, your relationships and what you do here will shape your story.</p><div className="account-stat"><span>NOTIFICATIONS</span><strong>{unread} unread</strong></div></aside>
+  </div>
   <section className="panel account-panel notifications-panel">
-   <div className="notifications-heading"><h2 className="heading">Your notifications</h2><span>{unread} unread</span></div>
-   {!items.length?<p className="notice">No notifications yet. Your AREA will let you know when someone challenges you or responds to your spar.</p>:
+   <div className="notifications-heading"><h2 className="heading">The postman</h2><span>{unread} unread</span></div>
+   {!items.length?<p className="notice">Nothing in the post yet. When someone invites you to spar or responds to you, you'll hear about it here.</p>:
     <div className="notification-list">{items.map(n=><article className={n.read_at?"notification-item":"notification-item unread"} key={n.id}>
      <div className="notification-copy"><div className="notification-type">{n.notification_type.replaceAll("_"," ")}</div><p>{n.message}</p><time>{new Date(n.created_at).toLocaleString()}</time></div>
      <div className="notification-actions">{n.post_id&&<Link className="text-action" href={"/#post-"+n.post_id}>Open conversation</Link>}{!n.read_at&&<form action="/notifications/read" method="post"><input type="hidden" name="notification_id" value={n.id}/><button className="text-action" type="submit">Mark read</button></form>}</div>
