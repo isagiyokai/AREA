@@ -10,7 +10,7 @@ export default async function PostPage({params}:{params:Promise<{id:string}>}){
  const supabase=await createClient();
  if(!supabase)notFound();
  const [{data:post},{data:{user}}]=await Promise.all([
-  supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles(username,display_name,area_class),quoted_post:posts!posts_quoted_post_id_fkey(id,content,created_at,author_id,profiles(username,display_name,area_class))").eq("id",id).maybeSingle(),
+  supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class),quoted_post:posts!posts_quoted_post_id_fkey(id,content,created_at,author_id,profiles!posts_author_id_fkey(username,display_name,area_class))").eq("id",id).maybeSingle(),
   supabase.auth.getUser()
  ]);
  if(!post)notFound();
