@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
  const supabase=await createClient();
  let posts: Array<{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}>= [];
+ let followingPosts: typeof posts=[];
  let signedIn=false;
  let currentUserId:string|null=null;
  let unreadCount=0;
@@ -18,9 +19,17 @@ export default async function Home() {
   const unreadQuery=user
    ?supabase.from("notifications").select("id",{count:"exact",head:true}).eq("recipient_id",user.id).is("read_at",null)
    :Promise.resolve({count:0,data:null,error:null});
-  const [{data},unread]=await Promise.all([postsQuery,unreadQuery]);
+  const followsQuery=user
+   ?supabase.from("follows").select("followed_id").eq("follower_id",user.id)
+   :Promise.resolve({data:[],error:null});
+  const [{data},unread,followRows]=await Promise.all([postsQuery,unreadQuery,followsQuery]);
   if(data)posts=data as typeof posts;
   unreadCount=unread.count??0;
+  if(user){
+   const circleAuthors=[user.id,...(followRows.data??[]).map(row=>row.followed_id)];
+   const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").in("author_id",circleAuthors).order("created_at",{ascending:false}).limit(40);
+   if(circleData)followingPosts=circleData as typeof posts;
+  }
  }
  return <main className="shell">
   <header className="top">
@@ -66,7 +75,7 @@ export default async function Home() {
      <span className="entry-stamp">SLUMS · FREE ENTRY</span>
     </div>
    </aside>
-   <div className="feed-column"><Feed initialPosts={posts} signedIn={signedIn} currentUserId={currentUserId}/></div>
+   <div className="feed-column"><Feed initialPosts={posts} initialFollowingPosts={followingPosts} signedIn={signedIn} currentUserId={currentUserId}/></div>
    <aside className="right">
     <div className="talk-panel" id="talking-points">
      <div className="talk-heading"><span className="mini-label">OPEN QUESTIONS</span><span className="talk-count">PICK A SIDE</span></div>
