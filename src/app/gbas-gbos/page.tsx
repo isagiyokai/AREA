@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import GbasGbosBoard from "@/components/gbas-gbos-board";
 export const dynamic="force-dynamic";
