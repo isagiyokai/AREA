@@ -8,8 +8,8 @@
  --line:#d9d2c6;
  --accent:#c7472e;
  --accent-dark:#9f321f;
- --green:#c7472e;
- --orange:#c7472e;
+ --green:#246b50;
+ --orange:#e2a12b;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -226,3 +226,18 @@ button{color:inherit}
 .follow-error{flex-basis:100%}
 .own-profile-note{font:9px 'Courier New',monospace;color:var(--muted);letter-spacing:.7px}
 @media(max-width:620px){.citizen-follow-row{align-items:flex-start;flex-direction:column}.follow-control{width:100%}}
+
+
+/* A living street: two distinct social currents, not one flat timeline */
+.stream-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:9px}
+.stream-heading .heading{font-size:20px;margin:5px 0 0}
+.stream-switch{display:flex;gap:3px;padding:3px;background:#e9e1d4;border:1px solid #d2c7b7;transform:rotate(-1deg)}
+.stream-switch button{border:0;background:transparent;padding:8px 11px;font:700 10px 'Courier New',monospace;cursor:pointer;color:#625d55;transition:background .15s,color .15s,transform .15s}
+.stream-switch button[aria-pressed=true]{background:var(--ink);color:var(--paper);box-shadow:2px 2px 0 var(--accent)}
+.stream-switch button:hover{transform:translateY(-1px)}
+.stream-switch button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.tag{color:var(--green);border-color:#a9c4b5}
+.avatar{background:#e8d7aa;color:#78412b}
+.post:nth-of-type(3n) .avatar{background:#d2e0d4;color:#246b50}
+.post:nth-of-type(3n + 2) .avatar{background:#ead0c2;color:#a13c29}
+@media(max-width:620px){.stream-heading{align-items:flex-start;flex-direction:column}.stream-switch{transform:none;width:100%}.stream-switch button{flex:1}}
