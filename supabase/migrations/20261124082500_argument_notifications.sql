@@ -15,12 +15,15 @@ create table if not exists public.notifications (
 );
 create index if not exists notifications_recipient_created_idx on public.notifications(recipient_id,created_at desc);
 create index if not exists notifications_post_idx on public.notifications(post_id);
+create index if not exists notifications_actor_idx on public.notifications(actor_id);
+create index if not exists notifications_challenge_idx on public.notifications(challenge_id);
+create index if not exists notifications_escalation_request_idx on public.notifications(escalation_request_id);
 
 alter table public.notifications enable row level security;
 drop policy if exists "Citizens read their own notifications" on public.notifications;
-create policy "Citizens read their own notifications" on public.notifications for select to authenticated using (recipient_id=auth.uid());
+create policy "Citizens read their own notifications" on public.notifications for select to authenticated using (recipient_id=(select auth.uid()));
 drop policy if exists "Citizens mark their own notifications read" on public.notifications;
-create policy "Citizens mark their own notifications read" on public.notifications for update to authenticated using (recipient_id=auth.uid()) with check (recipient_id=auth.uid());
+create policy "Citizens mark their own notifications read" on public.notifications for update to authenticated using (recipient_id=auth.uid()) with check (recipient_id=(select auth.uid()));
 revoke all on public.notifications from anon,authenticated;
 grant select on public.notifications to authenticated;
 grant update(read_at) on public.notifications to authenticated;
