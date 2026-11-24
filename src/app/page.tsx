@@ -8,13 +8,19 @@ export default async function Home() {
  const supabase=await createClient();
  let posts: Array<{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}>= [];
  let signedIn=false;
- let currentUserId:string|null=null;\n let unreadCount=0;
+ let currentUserId:string|null=null;
+ let unreadCount=0;
  if(supabase){
   const {data:{user}}=await supabase.auth.getUser();
   signedIn=!!user;
   currentUserId=user?.id??null;
-  const [{data},unread]=await Promise.all([supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  const postsQuery=supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  const unreadQuery=user
+   ?supabase.from("notifications").select("id",{count:"exact",head:true}).eq("recipient_id",user.id).is("read_at",null)
+   :Promise.resolve({count:0,data:null,error:null});
+  const [{data},unread]=await Promise.all([postsQuery,unreadQuery]);
   if(data)posts=data as typeof posts;
+  unreadCount=unread.count??0;
  }
  return <main className="shell">
   <header className="top">
@@ -30,7 +36,6 @@ export default async function Home() {
     <Link className="btn primary" href={signedIn?"/account":"/signup"}>{signedIn?"Your corner":"Join the street"}</Link>
    </div>
   </header>
-
   <section className="front-note">
    <div className="front-copy">
     <div className="eyebrow"><span className="live-dot"/> A Nigerian digital society</div>
@@ -43,9 +48,7 @@ export default async function Home() {
     <span className="front-aside-mark">AREA / 001</span>
    </div>
   </section>
-
   <div className="section-rule"><span>THE STREET</span><span>OPEN TO EVERYBODY</span></div>
-
   <section className="layout" id="feed">
    <aside className="left">
     <div className="rail-block">
@@ -63,11 +66,7 @@ export default async function Home() {
      <span className="entry-stamp">SLUMS · FREE ENTRY</span>
     </div>
    </aside>
-
-   <div className="feed-column">
-    <Feed initialPosts={posts} signedIn={signedIn} currentUserId={currentUserId}/>
-   </div>
-
+   <div className="feed-column"><Feed initialPosts={posts} signedIn={signedIn} currentUserId={currentUserId}/></div>
    <aside className="right">
     <div className="talk-panel" id="talking-points">
      <div className="talk-heading"><span className="mini-label">OPEN QUESTIONS</span><span className="talk-count">PICK A SIDE</span></div>
@@ -76,14 +75,10 @@ export default async function Home() {
      <a className="talk-item" href="#feed"><span>02 / EVERYDAY LIFE</span><strong>Soft life or hustle culture?</strong><small>Bring your own angle ↗</small></a>
      <a className="talk-item" href="#feed"><span>03 / CULTURE</span><strong>Which Nigerian slang needs to retire?</strong><small>Say your mind ↗</small></a>
     </div>
-    <div className="right-note">
-     <span className="mini-label">A SMALL REMINDER</span>
-     <p>Talk your talk. Disagree well. You can always leave a conversation that has gone too far.</p>
-    </div>
+    <div className="right-note"><span className="mini-label">A SMALL REMINDER</span><p>Talk your talk. Disagree well. You can always leave a conversation that has gone too far.</p></div>
     <div className="right-signoff">Made of people.<br/>Not perfect people.</div>
    </aside>
   </section>
-
   <footer className="site-footer"><span>AREA © 2026</span><span>A Nigerian digital society.</span><Link href="/signup">Come inside ↗</Link></footer>
  </main>;
 }
