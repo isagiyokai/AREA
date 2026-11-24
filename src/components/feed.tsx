@@ -1,269 +1,47 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-
-type Profile = { username: string; display_name: string; area_class: string };
-type Post = {
-  id: string;
-  content: string;
-  created_at: string;
-  author_id: string;
-  profiles: Profile | Profile[] | null;
-};
-type Reply = {
-  id: string;
-  post_id: string;
-  content: string;
-  created_at: string;
-  author_id: string;
-  profiles: Profile | Profile[] | null;
-};
-
-function getProfile(item: { profiles: Profile | Profile[] | null }): Profile | null {
-  return Array.isArray(item.profiles) ? item.profiles[0] ?? null : item.profiles;
-}
-
-function displayTime(value: string) {
-  return new Date(value).toLocaleString();
-}
-
-export default function Feed({
-  initialPosts,
-  signedIn,
-}: {
-  initialPosts: Post[];
-  signedIn: boolean;
-}) {
-  const [posts, setPosts] = useState(initialPosts);
-  const [content, setContent] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [openPostId, setOpenPostId] = useState<string | null>(null);
-  const [repliesByPost, setRepliesByPost] = useState<Record<string, Reply[]>>({});
-  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
-  const [loadingReplies, setLoadingReplies] = useState<string | null>(null);
-  const [replyBusy, setReplyBusy] = useState<string | null>(null);
-  const [replyErrors, setReplyErrors] = useState<Record<string, string>>({});
-
-  async function publish() {
-    setError("");
-    const text = content.trim();
-    if (!text || text.length > 500) return;
-    if (!signedIn) {
-      window.location.href = "/login";
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Please sign in again.");
-
-      const { data, error } = await supabase
-        .from("posts")
-        .insert({ author_id: user.id, content: text })
-        .select("id,content,created_at,author_id,profiles(username,display_name,area_class)")
-        .single();
-
-      if (error) throw error;
-      setPosts((current) => [data as Post, ...current]);
-      setContent("");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not publish. Try again.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function toggleReplies(postId: string) {
-    if (openPostId === postId) {
-      setOpenPostId(null);
-      return;
-    }
-
-    setOpenPostId(postId);
-    if (repliesByPost[postId]) return;
-
-    setLoadingReplies(postId);
-    setReplyErrors((current) => ({ ...current, [postId]: "" }));
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("replies")
-        .select("id,post_id,content,created_at,author_id,profiles(username,display_name,area_class)")
-        .eq("post_id", postId)
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      setRepliesByPost((current) => ({ ...current, [postId]: (data ?? []) as Reply[] }));
-    } catch (e) {
-      setReplyErrors((current) => ({
-        ...current,
-        [postId]: e instanceof Error ? e.message : "Could not load replies.",
-      }));
-    } finally {
-      setLoadingReplies(null);
-    }
-  }
-
-  async function submitReply(postId: string) {
-    const text = (replyDrafts[postId] ?? "").trim();
-    if (!text || text.length > 300) return;
-    if (!signedIn) {
-      window.location.href = "/login";
-      return;
-    }
-
-    setReplyBusy(postId);
-    setReplyErrors((current) => ({ ...current, [postId]: "" }));
-    try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Please sign in again.");
-
-      const { data, error } = await supabase
-        .from("replies")
-        .insert({ post_id: postId, author_id: user.id, content: text })
-        .select("id,post_id,content,created_at,author_id,profiles(username,display_name,area_class)")
-        .single();
-
-      if (error) throw error;
-      setRepliesByPost((current) => ({
-        ...current,
-        [postId]: [...(current[postId] ?? []), data as Reply],
-      }));
-      setReplyDrafts((current) => ({ ...current, [postId]: "" }));
-    } catch (e) {
-      setReplyErrors((current) => ({
-        ...current,
-        [postId]: e instanceof Error ? e.message : "Could not send your reply.",
-      }));
-    } finally {
-      setReplyBusy(null);
-    }
-  }
-
-  return (
-    <>
-      <div className="compose">
-        <h2 className="heading">What's happening in your AREA?</h2>
-        <textarea
-          maxLength={500}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder={signedIn ? "Drop the gist. Keep it real…" : "Sign in to join the conversation."}
-        />
-        <div className="composefoot">
-          <span>{content.length}/500 characters</span>
-          <button className="btn primary" onClick={publish} disabled={busy || !content.trim()}>
-            {busy ? "Posting…" : "Post to AREA"}
-          </button>
-        </div>
-        {error && <p className="error">{error}</p>}
-      </div>
-
-      <div className="feed-divider">
-        <h2 className="heading">Fresh from the street</h2>
-        {posts.length === 0 ? (
-          <div className="empty">The street is quiet. Be the first to start the gist.</div>
-        ) : (
-          posts.map((post) => {
-            const profile = getProfile(post);
-            const replies = repliesByPost[post.id] ?? [];
-            const isOpen = openPostId === post.id;
-
-            return (
-              <article className="post" key={post.id}>
-                <div className="posthead">
-                  <div className="avatar">{(profile?.display_name || "A").slice(0, 1).toUpperCase()}</div>
-                  <div>
-                    <div className="postname">
-                      {profile?.display_name || "AREA Citizen"}{" "}
-                      <span className="tag">{(profile?.area_class || "slums").toUpperCase()}</span>
-                    </div>
-                    <div className="meta">
-                      @{profile?.username || "citizen"} · {displayTime(post.created_at)}
-                    </div>
-                  </div>
-                </div>
-                <p className="content">{post.content}</p>
-                <div className="actions">
-                  <button className="text-action" onClick={() => void toggleReplies(post.id)}>
-                    {isOpen ? "Close conversation" : "Reply / view conversation"}
-                    {replies.length > 0 ? ` · ${replies.length}` : ""}
-                  </button>
-                  <span>↗ Share</span>
-                </div>
-
-                {isOpen && (
-                  <section className="reply-panel" aria-label="Post conversation">
-                    <h3 className="reply-heading">The conversation</h3>
-                    {loadingReplies === post.id ? (
-                      <p className="notice">Loading replies…</p>
-                    ) : replies.length === 0 ? (
-                      <p className="notice">No replies yet. You can start the conversation.</p>
-                    ) : (
-                      <div className="reply-list">
-                        {replies.map((reply) => {
-                          const replyProfile = getProfile(reply);
-                          return (
-                            <div className="reply-item" key={reply.id}>
-                              <div className="reply-meta">
-                                <strong>{replyProfile?.display_name || "AREA Citizen"}</strong>
-                                <span>@{replyProfile?.username || "citizen"}</span>
-                                <span>· {displayTime(reply.created_at)}</span>
-                              </div>
-                              <p>{reply.content}</p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {replyErrors[post.id] && <p className="error">{replyErrors[post.id]}</p>}
-                    <div className="reply-compose">
-                      <textarea
-                        maxLength={300}
-                        value={replyDrafts[post.id] ?? ""}
-                        onChange={(e) =>
-                          setReplyDrafts((current) => ({ ...current, [post.id]: e.target.value }))
-                        }
-                        placeholder={signedIn ? "Add your reply…" : "Sign in to reply…"}
-                        aria-label="Write a reply"
-                      />
-                      <div className="reply-compose-footer">
-                        <span>{(replyDrafts[post.id] ?? "").length}/300</span>
-                        <button
-                          className="btn primary"
-                          onClick={() => void submitReply(post.id)}
-                          disabled={replyBusy === post.id || !(replyDrafts[post.id] ?? "").trim()}
-                        >
-                          {replyBusy === post.id ? "Sending…" : "Reply"}
-                        </button>
-                      </div>
-                    </div>
-                  </section>
-                )}
-              </article>
-            );
-          })
-        )}
-      </div>
-
-      <p className="notice">
-        Keep the banter lively. Threats, doxxing, stalking and targeted harassment have no place here.
-      </p>
-      {!signedIn && (
-        <p className="notice">
-          <Link href="/signup" className="green">Create your citizen account</Link> to post and take part.
-        </p>
-      )}
-    </>
-  );
+type Profile={username:string;display_name:string;area_class:string};
+type Person={username:string;display_name:string};
+type Post={id:string;content:string;created_at:string;author_id:string;profiles:Profile|Profile[]|null};
+type Reply={id:string;post_id:string;content:string;created_at:string;author_id:string;profiles:Profile|Profile[]|null};
+type Challenge={id:string;post_id:string;challenger_id:string;challenged_id:string;intensity:1|2|3;status:"pending"|"active"|"declined"|"ended"|"expired";created_at:string;expires_at:string;challenger:Person|Person[]|null;challenged:Person|Person[]|null};
+const levels:Record<number,string>={1:"Banter",2:"Heated",3:"Full wahala"};
+const profileOf=(v:Profile|Profile[]|null):Profile|null=>Array.isArray(v)?v[0]??null:v;
+const personOf=(v:Person|Person[]|null):Person|null=>Array.isArray(v)?v[0]??null:v;
+const when=(v:string)=>new Date(v).toLocaleString();
+export default function Feed({initialPosts,signedIn,currentUserId}:{initialPosts:Post[];signedIn:boolean;currentUserId:string|null}){
+ const [posts,setPosts]=useState(initialPosts),[content,setContent]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ const [openPostId,setOpenPostId]=useState<string|null>(null),[replies,setReplies]=useState<Record<string,Reply[]>>({}),[drafts,setDrafts]=useState<Record<string,string>>({});
+ const [loading,setLoading]=useState<string|null>(null),[replyBusy,setReplyBusy]=useState<string|null>(null),[errors,setErrors]=useState<Record<string,string>>({});
+ const [challenges,setChallenges]=useState<Record<string,Challenge[]>>({}),[loaded,setLoaded]=useState<Record<string,boolean>>({});
+ const [target,setTarget]=useState<{postId:string;userId:string;name:string}|null>(null),[intensity,setIntensity]=useState<1|2|3>(1),[challengeBusy,setChallengeBusy]=useState(false),[challengeError,setChallengeError]=useState("");
+ async function publish(){setError("");const text=content.trim();if(!text||text.length>500)return;if(!signedIn){window.location.href="/login";return;}setBusy(true);
+  try{const sb=createClient();const {data:{user}}=await sb.auth.getUser();if(!user)throw new Error("Please sign in again.");const {data,error}=await sb.from("posts").insert({author_id:user.id,content:text}).select("id,content,created_at,author_id,profiles(username,display_name,area_class)").single();if(error)throw error;setPosts(p=>[data as Post,...p]);setContent("");}
+  catch(e){setError(e instanceof Error?e.message:"Could not publish.");}finally{setBusy(false);}}
+ async function loadChallenges(postId:string){const sb=createClient();const {data,error}=await sb.from("argument_challenges").select("id,post_id,challenger_id,challenged_id,intensity,status,created_at,expires_at,challenger:profiles!argument_challenges_challenger_id_fkey(username,display_name),challenged:profiles!argument_challenges_challenged_id_fkey(username,display_name)").eq("post_id",postId).order("created_at",{ascending:false}).limit(12);if(error)throw error;setChallenges(v=>({...v,[postId]:(data??[]) as Challenge[]}));setLoaded(v=>({...v,[postId]:true}));}
+ async function toggleThread(postId:string){if(openPostId===postId){setOpenPostId(null);setTarget(null);return;}setOpenPostId(postId);if(replies[postId]&&loaded[postId])return;setLoading(postId);setErrors(v=>({...v,[postId]:""}));
+  try{const sb=createClient();const [rr]=await Promise.all([sb.from("replies").select("id,post_id,content,created_at,author_id,profiles(username,display_name,area_class)").eq("post_id",postId).order("created_at",{ascending:true}),loadChallenges(postId)]);if(rr.error)throw rr.error;setReplies(v=>({...v,[postId]:(rr.data??[]) as Reply[]}));}
+  catch(e){setErrors(v=>({...v,[postId]:e instanceof Error?e.message:"Could not load this conversation."}));}finally{setLoading(null);}}
+ async function submitReply(postId:string){const text=(drafts[postId]??"").trim();if(!text||text.length>300)return;if(!signedIn){window.location.href="/login";return;}setReplyBusy(postId);setErrors(v=>({...v,[postId]:""}));
+  try{const sb=createClient();const {data:{user}}=await sb.auth.getUser();if(!user)throw new Error("Please sign in again.");const {data,error}=await sb.from("replies").insert({post_id:postId,author_id:user.id,content:text}).select("id,post_id,content,created_at,author_id,profiles(username,display_name,area_class)").single();if(error)throw error;setReplies(v=>({...v,[postId]:[...(v[postId]??[]),data as Reply]}));setDrafts(v=>({...v,[postId]:""}));}
+  catch(e){setErrors(v=>({...v,[postId]:e instanceof Error?e.message:"Could not send your reply."}));}finally{setReplyBusy(null);}}
+ function invite(postId:string,userId:string,name:string){if(!signedIn){window.location.href="/login";return;}setTarget({postId,userId,name});setIntensity(1);setChallengeError("");if(openPostId!==postId)void toggleThread(postId);}
+ async function sendChallenge(){if(!target||!currentUserId)return;setChallengeBusy(true);setChallengeError("");try{const sb=createClient();const {error}=await sb.rpc("create_argument_challenge",{p_post_id:target.postId,p_opponent_id:target.userId,p_intensity:intensity});if(error)throw error;await loadChallenges(target.postId);setTarget(null);}catch(e){setChallengeError(e instanceof Error?e.message:"Could not send invitation.");}finally{setChallengeBusy(false);}}
+ async function respond(c:Challenge,accept:boolean){setChallengeBusy(true);setChallengeError("");try{const sb=createClient();const {error}=await sb.rpc("respond_argument_challenge",{p_challenge_id:c.id,p_accept:accept});if(error)throw error;await loadChallenges(c.post_id);}catch(e){setChallengeError(e instanceof Error?e.message:"Could not update invitation.");}finally{setChallengeBusy(false);}}
+ async function end(c:Challenge){setChallengeBusy(true);setChallengeError("");try{const sb=createClient();const {error}=await sb.rpc("end_argument_challenge",{p_challenge_id:c.id});if(error)throw error;await loadChallenges(c.post_id);}catch(e){setChallengeError(e instanceof Error?e.message:"Could not end exchange.");}finally{setChallengeBusy(false);}}
+ return <><div className="compose"><h2 className="heading">What's happening in your AREA?</h2><textarea maxLength={500} value={content} onChange={e=>setContent(e.target.value)} placeholder={signedIn?"Drop the gist. Keep it real…":"Sign in to join the conversation."}/><div className="composefoot"><span>{content.length}/500 characters</span><button className="btn primary" onClick={publish} disabled={busy||!content.trim()}>{busy?"Posting…":"Post to AREA"}</button></div>{error&&<p className="error">{error}</p>}</div>
+ <div className="feed-divider"><h2 className="heading">Fresh from the street</h2>{!posts.length?<div className="empty">The street is quiet. Be the first to start the gist.</div>:posts.map(post=>{const p=profileOf(post.profiles),thread=replies[post.id]??[],cs=challenges[post.id]??[],opened=openPostId===post.id;
+  return <article className="post" key={post.id}><div className="posthead"><div className="avatar">{(p?.display_name||"A").slice(0,1).toUpperCase()}</div><div><div className="postname">{p?.display_name||"AREA Citizen"} <span className="tag">{(p?.area_class||"slums").toUpperCase()}</span></div><div className="meta">@{p?.username||"citizen"} · {when(post.created_at)}</div></div></div><p className="content">{post.content}</p>
+   <div className="actions"><button className="text-action" onClick={()=>void toggleThread(post.id)}>{opened?"Close conversation":"Reply / view conversation"}{thread.length>0?" · "+thread.length:""}</button>{currentUserId!==post.author_id&&<button className="text-action" onClick={()=>invite(post.id,post.author_id,p?.display_name||"this citizen")}>Challenge to spar</button>}<span>↗ Share</span></div>
+   {opened&&<section className="reply-panel" aria-label="Post conversation"><h3 className="reply-heading">The conversation</h3>
+    {target?.postId===post.id&&<div className="challenge-compose"><strong>Invite {target.name} to spar</strong><p>Choose the intensity. They must accept before the exchange begins.</p><div className="intensity-options">{([1,2,3] as const).map(n=><button type="button" key={n} className={intensity===n?"intensity-option selected":"intensity-option"} onClick={()=>setIntensity(n)}><b>{levels[n]}</b><span>{n===1?"Light verbal banter":n===2?"Sharper back-and-forth":"Maximum agreed intensity"}</span></button>)}</div><p className="challenge-boundary">Intensity changes the tone, not the rules. Threats, doxxing, stalking and targeted harassment remain prohibited. Either person can end an active exchange.</p>{challengeError&&<p className="error">{challengeError}</p>}<div className="challenge-compose-actions"><button className="btn" onClick={()=>setTarget(null)} disabled={challengeBusy}>Cancel</button><button className="btn primary" onClick={()=>void sendChallenge()} disabled={challengeBusy}>{challengeBusy?"Sending…":"Send invitation"}</button></div></div>}
+    {loading===post.id?<p className="notice">Loading replies…</p>:!thread.length?<p className="notice">No replies yet. You can start the conversation.</p>:<div className="reply-list">{thread.map(r=>{const rp=profileOf(r.profiles);return <div className="reply-item" key={r.id}><div className="reply-meta"><strong>{rp?.display_name||"AREA Citizen"}</strong><span>@{rp?.username||"citizen"}</span><span>· {when(r.created_at)}</span></div><p>{r.content}</p>{currentUserId!==r.author_id&&<button className="text-action reply-challenge" onClick={()=>invite(post.id,r.author_id,rp?.display_name||"this citizen")}>Challenge to spar</button>}</div>;})}</div>}
+    {errors[post.id]&&<p className="error">{errors[post.id]}</p>}
+    {!!cs.length&&<div className="challenge-list"><h4>Wahala in progress</h4>{cs.map(c=>{const a=personOf(c.challenger),b=personOf(c.challenged),recipient=c.challenged_id===currentUserId,participant=c.challenger_id===currentUserId||recipient;return <div className="challenge-card" key={c.id}><div className="challenge-card-main"><strong>{a?.display_name||"Citizen"} ↔ {b?.display_name||"Citizen"}</strong><span>{levels[c.intensity]} · {c.status==="active"?"In progress":c.status==="pending"?"Awaiting response":c.status}</span></div>{c.status==="pending"&&recipient&&<div className="challenge-card-actions"><button className="btn primary" onClick={()=>void respond(c,true)} disabled={challengeBusy}>Accept</button><button className="btn" onClick={()=>void respond(c,false)} disabled={challengeBusy}>Decline</button></div>}{c.status==="pending"&&c.challenger_id===currentUserId&&<span className="challenge-note">Invitation sent. Waiting for consent.</span>}{c.status==="active"&&participant&&<button className="btn" onClick={()=>void end(c)} disabled={challengeBusy}>End exchange</button>}</div>;})}</div>}
+    {challengeError&&!target&&<p className="error">{challengeError}</p>}
+    <div className="reply-compose"><textarea maxLength={300} value={drafts[post.id]??""} onChange={e=>setDrafts(v=>({...v,[post.id]:e.target.value}))} placeholder={signedIn?"Add your reply…":"Sign in to reply…"} aria-label="Write a reply"/><div className="reply-compose-footer"><span>{(drafts[post.id]??"").length}/300</span><button className="btn primary" onClick={()=>void submitReply(post.id)} disabled={replyBusy===post.id||!(drafts[post.id]??"").trim()}>{replyBusy===post.id?"Sending…":"Reply"}</button></div></div>
+   </section>}</article>;
+ })}</div><p className="notice">Keep the banter lively. Threats, doxxing, stalking and targeted harassment have no place here.</p>{!signedIn&&<p className="notice"><Link href="/signup" className="green">Create your citizen account</Link> to post and take part.</p>}</>;
 }
