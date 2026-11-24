@@ -241,3 +241,21 @@ button{color:inherit}
 .post:nth-of-type(3n) .avatar{background:#d2e0d4;color:#246b50}
 .post:nth-of-type(3n + 2) .avatar{background:#ead0c2;color:#a13c29}
 @media(max-width:620px){.stream-heading{align-items:flex-start;flex-direction:column}.stream-switch{transform:none;width:100%}.stream-switch button{flex:1}}
+
+
+/* AREA should feel like a street with a pulse, not a polished template */
+.front-aside{position:relative;overflow:hidden;background:var(--green);border:0;padding:19px 18px 15px 22px;color:#fff8e8;transform:rotate(1deg);box-shadow:6px 6px 0 var(--orange)}
+.front-aside:after{content:"";position:absolute;right:-34px;top:-35px;width:132px;height:132px;border:1px solid rgba(255,248,232,.35);border-radius:50%;box-shadow:0 0 0 13px rgba(255,248,232,.08),0 0 0 27px rgba(255,248,232,.06);pointer-events:none}
+.front-aside-label{color:#ffd27a}.front-aside p{position:relative;z-index:1;color:#fff8e8;font-size:23px;line-height:1.2;margin:15px 0 25px}.front-aside-mark{color:#d6e8da}
+.talk-panel{background:#fff7df;border-color:#ddc98e;box-shadow:3px 3px 0 #e2a12b}
+.talk-count{color:var(--green);font-weight:700}
+.talk-item{transition:padding .16s,background .16s}
+.talk-item:hover{padding-left:8px;background:rgba(226,161,43,.12)}
+.talk-item:nth-of-type(2n) > span{color:var(--green)}
+.compose{border-left:4px solid var(--orange)}
+.post{transition:background .16s,padding .16s}
+.post:hover{background:rgba(255,255,255,.48)}
+.live-dot{animation:area-pulse 2.4s ease-in-out infinite}
+@keyframes area-pulse{0%,100%{box-shadow:0 0 0 0 rgba(199,71,46,.35)}50%{box-shadow:0 0 0 6px rgba(199,71,46,0)}}
+@media(max-width:780px){.front-aside{max-width:360px;margin:4px 0 7px 5px}}
+@media(prefers-reduced-motion:reduce){.live-dot{animation:none}.post,.talk-item{transition:none}}
