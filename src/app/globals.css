@@ -259,3 +259,58 @@ button{color:inherit}
 @keyframes area-pulse{0%,100%{box-shadow:0 0 0 0 rgba(199,71,46,.35)}50%{box-shadow:0 0 0 6px rgba(199,71,46,0)}}
 @media(max-width:780px){.front-aside{max-width:360px;margin:4px 0 7px 5px}}
 @media(prefers-reduced-motion:reduce){.live-dot{animation:none}.post,.talk-item{transition:none}}
+
+/* Gbas Gbos — AREA's argument yard */
+.gbas-masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;padding:48px 0 35px}
+.gbas-masthead h1{font:800 clamp(54px,8vw,92px)/.84 Georgia,serif;letter-spacing:-5px;margin:17px 0}
+.gbas-masthead h1 em{font-weight:400;color:var(--accent)}
+.gbas-masthead p{max-width:570px;color:#625d55;font:15px/1.7 Georgia,serif;margin:0}
+.gbas-stamp{width:160px;min-width:140px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:15px 10px;border:2px solid var(--green);color:var(--green);transform:rotate(4deg);font:9px 'Courier New',monospace;letter-spacing:1px}
+.gbas-stamp strong{font:900 20px Arial,sans-serif;letter-spacing:-1px}.gbas-stamp b{margin-top:10px;padding-top:8px;border-top:1px solid var(--green);width:100%;text-align:center}
+.gbas-rule{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);font:9px 'Courier New',monospace;letter-spacing:1px;color:var(--muted)}
+.gbas-rule span:first-child{color:var(--green);font-weight:bold}
+.gbas-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;padding-top:25px;align-items:start}
+.gbas-start{padding:20px;background:#e8efe8;border:1px solid #c2d2c4;border-left:5px solid var(--green);box-shadow:4px 4px 0 #d8c8a7}
+.gbas-section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:14px}
+.gbas-section-head h2{font:700 24px Georgia,serif;margin:6px 0 0}
+.gbas-index{font:9px 'Courier New',monospace;color:#8a8378;white-space:nowrap}
+.gbas-start textarea{width:100%;min-height:94px;resize:vertical;padding:13px;background:#fffdf7;border:1px solid #c8d2c6;outline:0;font:16px/1.5 Georgia,serif;color:var(--ink)}
+.gbas-start textarea:focus{border-color:var(--green)}
+.gbas-compose-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;color:var(--muted);font:10px 'Courier New',monospace}
+.gbas-compose-foot .btn.primary{background:var(--green);border-color:var(--green)}
+.topic-strip{border-top:1px solid #cbd7ca;margin-top:18px;padding-top:13px}
+.topic-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.topic-chips button{border:1px solid #b9cbbd;background:#f8f8ef;color:#375f4a;padding:7px 9px;font:9px 'Courier New',monospace;cursor:pointer}
+.topic-chips button:hover{background:var(--green);color:white}
+.gbas-section{margin-top:33px}
+.gbas-post-list{border-top:1px solid var(--ink)}
+.gbas-post{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;padding:17px 0;border-bottom:1px solid var(--line)}
+.gbas-post-number{font:11px 'Courier New',monospace;color:var(--accent);padding-top:3px}
+.gbas-post-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:10px 'Courier New',monospace;color:var(--muted)}
+.gbas-post-meta strong{font:700 11px Arial,sans-serif;color:var(--ink)}
+.gbas-post-body>p{font:15px/1.6 Georgia,serif;margin:9px 0;color:#302d28;white-space:pre-wrap;overflow-wrap:anywhere}
+.gbas-post-actions{display:flex;gap:16px;align-items:center;font:10px 'Courier New',monospace;color:var(--muted)}
+.gbas-post-actions a{color:var(--green);font-weight:bold}
+.gbas-empty,.spar-empty{padding:20px 0;color:var(--muted)}
+.gbas-empty strong,.spar-empty strong{font:700 18px Georgia,serif;color:var(--ink)}
+.gbas-empty p,.spar-empty p{font-size:11px;line-height:1.6}
+.gbas-side{display:grid;gap:18px}
+.spar-board{padding:16px;background:#f7e8df;border:1px solid #dfc1b3;box-shadow:4px 4px 0 #e3c98d}
+.spar-board .gbas-section-head h2{font-size:21px}
+.spar-filters{display:flex;gap:4px;border-bottom:1px solid #dfc1b3;padding-bottom:9px}
+.spar-filters button{flex:1;padding:7px 4px;border:1px solid transparent;background:transparent;color:#77695e;font:9px 'Courier New',monospace;cursor:pointer}
+.spar-filters button[aria-pressed=true]{background:var(--accent);color:white}
+.spar-card{padding:13px 0;border-bottom:1px solid #dfc1b3}
+.spar-card-top{display:flex;justify-content:space-between;gap:8px;font:8px 'Courier New',monospace;color:#76665b}
+.spar-card-top b{color:var(--accent)}
+.spar-names{font:700 14px Georgia,serif;margin:9px 0}
+.spar-names i{font:italic 11px Georgia,serif;color:var(--accent)}
+.spar-card p{font:12px/1.5 Georgia,serif;color:#51483f;margin:0 0 8px}
+.spar-card>a{font:10px 'Courier New',monospace;color:var(--accent);font-weight:bold}
+.gbas-rules{padding:16px;background:#f0eadb;border:1px solid #d8ccb0}
+.gbas-rules h2{font:700 20px Georgia,serif;margin:10px 0}
+.gbas-rules ul{padding-left:17px;margin:0;display:grid;gap:8px}
+.gbas-rules li{font-size:11px;line-height:1.5;color:#5e574c}
+@media(max-width:850px){.gbas-grid{grid-template-columns:minmax(0,1fr) 260px;gap:18px}}
+@media(max-width:680px){.gbas-masthead{padding:32px 0 25px}.gbas-masthead h1{font-size:62px;letter-spacing:-3px}.gbas-stamp{width:112px;min-width:112px;padding:10px 5px}.gbas-stamp strong{font-size:15px}.gbas-masthead p{font-size:13px}.gbas-grid{grid-template-columns:1fr}.gbas-side{grid-template-columns:1fr 1fr;align-items:start}.gbas-rule{font-size:8px}.gbas-start{padding:14px}}
+@media(max-width:480px){.gbas-masthead{align-items:flex-start}.gbas-stamp{display:none}.gbas-masthead h1{font-size:56px}.gbas-side{grid-template-columns:1fr}.gbas-section-head h2{font-size:21px}.gbas-rule span:last-child{max-width:52%;text-align:right}}
