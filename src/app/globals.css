@@ -214,3 +214,15 @@ button{color:inherit}
 .citizen-post-date{font:10px 'Courier New',monospace;color:var(--muted)}
 .citizen-post p{font:15px/1.65 Georgia,serif;color:#302d28;margin:9px 0}
 @media(max-width:620px){.citizen-cover{padding-top:25px}.citizen-identity h1{font-size:38px}.citizen-avatar{width:56px;height:56px}.citizen-bio{font-size:14px}}
+
+/* Citizen-to-citizen connections */
+.citizen-follow-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.follow-control{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.follow-button{min-width:142px}
+.follow-button.is-following{background:transparent;border-color:var(--accent);color:var(--accent)}
+.follow-button.is-following:hover{background:#f4ddd4}
+.follow-count{font:10px 'Courier New',monospace;color:var(--muted)}
+.follow-count strong{color:var(--ink)}
+.follow-error{flex-basis:100%}
+.own-profile-note{font:9px 'Courier New',monospace;color:var(--muted);letter-spacing:.7px}
+@media(max-width:620px){.citizen-follow-row{align-items:flex-start;flex-direction:column}.follow-control{width:100%}}
