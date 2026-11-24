@@ -23,3 +23,8 @@
 .challenge-card-main strong{font-size:11px}.challenge-card-main span,.challenge-note{font-size:10px;color:var(--muted)}
 .challenge-card-actions{margin:0}.reply-challenge{display:inline-block;margin-top:8px;font-size:10px}
 @media(max-width:480px){.intensity-options{grid-template-columns:1fr}.intensity-option{padding:9px 10px}.challenge-card{align-items:flex-start}.challenge-card-actions{width:100%;justify-content:flex-start}}
+
+.escalation-request{display:flex;flex-direction:column;gap:8px;width:100%;padding:9px 10px;background:#111b14;border:1px solid #34543c;border-radius:8px;font-size:10px}
+.escalation-request small,.escalation-options>span{color:var(--muted);font-size:10px}
+.escalation-options{display:flex;flex-wrap:wrap;align-items:center;gap:9px;width:100%;padding-top:4px}
+.escalation-options .text-action{font-size:10px}
