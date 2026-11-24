@@ -1,0 +1,47 @@
+-- AREA public callouts: the argument starts when a citizen makes it public.
+-- No target acceptance is required. The target may answer, ignore, block, or leave.
+
+create or replace function public.create_argument_challenge(p_post_id uuid,p_opponent_id uuid,p_intensity smallint)
+returns public.argument_challenges
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_result public.argument_challenges;
+  v_post_author uuid;
+  v_recent_count integer;
+begin
+  if v_user_id is null then raise exception 'You must sign in to make a public callout.'; end if;
+  if p_intensity is null or p_intensity not between 1 and 3 then raise exception 'Choose a valid intensity level.'; end if;
+  if p_opponent_id is null or p_opponent_id = v_user_id then raise exception 'Choose another citizen to call out.'; end if;
+  select p.author_id into v_post_author from public.posts p where p.id = p_post_id;
+  if v_post_author is null then raise exception 'This conversation no longer exists.'; end if;
+  if not exists (select 1 from public.profiles pr where pr.id = p_opponent_id) then raise exception 'That citizen could not be found.'; end if;
+  if p_opponent_id <> v_post_author and not exists (select 1 from public.replies r where r.post_id = p_post_id and r.author_id = p_opponent_id) then
+    raise exception 'You can only call out a citizen who has joined this conversation.';
+  end if;
+  update public.argument_challenges ac set status='expired',ended_at=now()
+  where ac.post_id=p_post_id and ac.status='pending' and ac.expires_at<=now()
+    and ((ac.challenger_id=v_user_id and ac.challenged_id=p_opponent_id) or (ac.challenger_id=p_opponent_id and ac.challenged_id=v_user_id));
+  select count(*) into v_recent_count from public.argument_challenges ac where ac.challenger_id=v_user_id and ac.created_at>now()-interval '24 hours';
+  if v_recent_count>=10 then raise exception 'You have reached today’s callout limit. Try again later.'; end if;
+  insert into public.argument_challenges(post_id,challenger_id,challenged_id,intensity,status,accepted_at)
+  values(p_post_id,v_user_id,p_opponent_id,p_intensity,'active',now()) returning * into v_result;
+  return v_result;
+exception when unique_violation then raise exception 'There is already an open callout between these citizens in this conversation.';
+end;
+$$;
+
+create or replace function public.notify_argument_challenge_insert()
+returns trigger language plpgsql security definer set search_path=''
+as $$
+begin
+ insert into public.notifications(recipient_id,actor_id,notification_type,message,post_id,challenge_id)
+ values(new.challenged_id,new.challenger_id,'argument_invitation','A citizen called you out in Gbas Gbos. Answer, ignore, or leave it alone.',new.post_id,new.id);
+ return new;
+end;
+$$;
+
+revoke all on function public.create_argument_challenge(uuid,uuid,smallint) from public,anon;
+grant execute on function public.create_argument_challenge(uuid,uuid,smallint) to authenticated;
+revoke all on function public.notify_argument_challenge_insert() from public,anon,authenticated;

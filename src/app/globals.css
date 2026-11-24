@@ -317,3 +317,6 @@ button{color:inherit}
 
 .gbas-post-sort{display:flex;gap:3px;align-items:center}.gbas-post-sort button{border:1px solid #d9d2c6;background:transparent;padding:7px 9px;color:#777168;font:9px 'Courier New',monospace;cursor:pointer}.gbas-post-sort button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 @media(max-width:480px){.gbas-post-sort button{padding:6px 7px;font-size:8px}}
+
+/* Gbas Gbos public-callout treatment */
+.challenge-compose{background:#fff0d6;border-color:#d8b56d}.challenge-compose>strong{color:var(--green)}.challenge-boundary{border-left:3px solid var(--orange);padding-left:9px}.challenge-list h4{color:var(--green)}.challenge-card .btn{font-size:10px}
