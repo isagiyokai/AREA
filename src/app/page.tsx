@@ -15,7 +15,7 @@ export default async function Home() {
   const {data:{user}}=await supabase.auth.getUser();
   signedIn=!!user;
   currentUserId=user?.id??null;
-  const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles(username,display_name,area_class),quoted_post:posts!posts_quoted_post_id_fkey(id,content,created_at,author_id,profiles(username,display_name,area_class))").order("created_at",{ascending:false}).limit(40);
   if(postError)console.error("AREA street feed query failed:",postError.message);
   if(postData)posts=postData as typeof posts;
   const unreadQuery=user
@@ -28,7 +28,7 @@ export default async function Home() {
   unreadCount=unread.count??0;
   if(user){
    const circleAuthors=[user.id,...(followRows.data??[]).map(row=>row.followed_id)];
-   const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").in("author_id",circleAuthors).order("created_at",{ascending:false}).limit(40);
+   const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles(username,display_name,area_class),quoted_post:posts!posts_quoted_post_id_fkey(id,content,created_at,author_id,profiles(username,display_name,area_class))").in("author_id",circleAuthors).order("created_at",{ascending:false}).limit(40);
    if(circleData)followingPosts=circleData as typeof posts;
   }
  }
