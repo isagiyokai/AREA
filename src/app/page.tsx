@@ -1,18 +1,89 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Feed from "@/components/feed";
+
 export const dynamic = "force-dynamic";
+
 export default async function Home() {
  const supabase=await createClient();
- let posts: Array<{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}>=[];
- let signedIn=false; let currentUserId:string|null=null;
- if(supabase){const {data:{user}}=await supabase.auth.getUser();signedIn=!!user;currentUserId=user?.id??null;
-  const {data}=await supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);if(data)posts=data as typeof posts;}
+ let posts: Array<{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}>= [];
+ let signedIn=false;
+ let currentUserId:string|null=null;
+ if(supabase){
+  const {data:{user}}=await supabase.auth.getUser();
+  signedIn=!!user;
+  currentUserId=user?.id??null;
+  const {data}=await supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  if(data)posts=data as typeof posts;
+ }
  return <main className="shell">
-  <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><nav className="nav"><a href="#feed">The street</a><a href="#trending">Trending</a>{signedIn?<Link href="/account">My account</Link>:<Link href="/login">Sign in</Link>}</nav><Link className="btn primary" href={signedIn?"/account":"/signup"}>{signedIn?"Your profile":"Join AREA"}</Link></header>
-  <section className="hero"><div className="eyebrow">One country. One digital society.</div><h1>Your people.<br/><span className="green">Your AREA.</span></h1><p>Where the gist travels, the banter is alive, and everybody has a place. Pull up a chair. The street is talking.</p></section>
-  <section className="layout" id="feed"><aside className="left"><div className="panel"><h2 className="heading">Your AREA</h2><div className="side">The street <b>LIVE</b></div><div className="side">Communities <b>SOON</b></div><div className="side">Territories <b>SOON</b></div><div className="side">Leaderboard <b>SOON</b></div></div><div className="panel"><h2 className="heading">Choose your lane</h2><p className="muted" style={{fontSize:12,lineHeight:1.7}}>Start in SLUMS. Build your name. Make your moves. Your story in AREA starts with you.</p><span className="tag">SLUMS · FREE ENTRY</span></div></aside>
-   <div><div className="panel"><Feed initialPosts={posts} signedIn={signedIn} currentUserId={currentUserId}/></div></div>
-   <aside className="right"><div className="panel" id="trending"><h2 className="heading">The gist</h2><div className="trend"><small>01 · NIGERIA</small><b>What's happening today?</b><small>Conversations are warming up</small></div><div className="trend"><small>02 · CULTURE</small><b>Which city has the best jollof?</b><small>Somebody is about to be dragged</small></div><div className="trend"><small>03 · STREET</small><b>Soft life or hustle?</b><small>The debate never ends</small></div></div><div className="panel"><h2 className="heading">AREA is just opening</h2><p className="muted" style={{fontSize:12,lineHeight:1.7}}>Bring your people. Start conversations. Help shape the culture of this place.</p><Link className="btn primary" href="/signup">Become a citizen</Link></div></aside></section>
-  <footer className="muted" style={{padding:"30px 0",fontSize:11}}>AREA · A Nigerian digital society · Built for the people.</footer></main>;
+  <header className="top">
+   <Link href="/" className="brand" aria-label="AREA home">AREA<span>.</span></Link>
+   <nav className="nav" aria-label="Main navigation">
+    <a className="nav-current" href="#feed">The street</a>
+    <a href="#talking-points">Gbas Gbos</a>
+    <span className="nav-muted">Market <small>soon</small></span>
+    <span className="nav-muted">Territories <small>soon</small></span>
+   </nav>
+   <div className="top-actions">
+    {signedIn?<Link href="/account" className="account-link">My account ↗</Link>:<Link href="/login" className="account-link">Sign in</Link>}
+    <Link className="btn primary" href={signedIn?"/account":"/signup"}>{signedIn?"Your corner":"Join the street"}</Link>
+   </div>
+  </header>
+
+  <section className="front-note">
+   <div className="front-copy">
+    <div className="eyebrow"><span className="live-dot"/> A Nigerian digital society</div>
+    <h1>No be only you<br/>dey this <em>country.</em></h1>
+    <p>One place for the gist, the arguments, the friendships and everything in between. Pull up. Your people dey here.</p>
+   </div>
+   <div className="front-aside">
+    <span className="front-aside-label">THE AREA MOTTO</span>
+    <p>Everybody get mouth.<br/>Everybody get matter.</p>
+    <span className="front-aside-mark">AREA / 001</span>
+   </div>
+  </section>
+
+  <div className="section-rule"><span>THE STREET</span><span>OPEN TO EVERYBODY</span></div>
+
+  <section className="layout" id="feed">
+   <aside className="left">
+    <div className="rail-block">
+     <h2 className="rail-title">Find your way</h2>
+     <a className="rail-link rail-active" href="#feed"><span>01</span> The street</a>
+     <a className="rail-link" href="#talking-points"><span>02</span> Gbas Gbos</a>
+     <div className="rail-link rail-soon"><span>03</span> AREA Market <small>SOON</small></div>
+     <div className="rail-link rail-soon"><span>04</span> Territories <small>SOON</small></div>
+     <div className="rail-link rail-soon"><span>05</span> Society <small>SOON</small></div>
+    </div>
+    <div className="rail-block start-block">
+     <span className="mini-label">NEW AROUND HERE?</span>
+     <h2>Start from somewhere.</h2>
+     <p>Enter through SLUMS for free. Build your name, meet your people and find your own way up.</p>
+     <span className="entry-stamp">SLUMS · FREE ENTRY</span>
+    </div>
+   </aside>
+
+   <div className="feed-column">
+    <Feed initialPosts={posts} signedIn={signedIn} currentUserId={currentUserId}/>
+   </div>
+
+   <aside className="right">
+    <div className="talk-panel" id="talking-points">
+     <div className="talk-heading"><span className="mini-label">OPEN QUESTIONS</span><span className="talk-count">PICK A SIDE</span></div>
+     <h2>Wetin dey your mind?</h2>
+     <a className="talk-item" href="#feed"><span>01 / FOOD</span><strong>Jollof rice: who really get am?</strong><small>Start the argument ↗</small></a>
+     <a className="talk-item" href="#feed"><span>02 / EVERYDAY LIFE</span><strong>Soft life or hustle culture?</strong><small>Bring your own angle ↗</small></a>
+     <a className="talk-item" href="#feed"><span>03 / CULTURE</span><strong>Which Nigerian slang needs to retire?</strong><small>Say your mind ↗</small></a>
+    </div>
+    <div className="right-note">
+     <span className="mini-label">A SMALL REMINDER</span>
+     <p>Talk your talk. Disagree well. You can always leave a conversation that has gone too far.</p>
+    </div>
+    <div className="right-signoff">Made of people.<br/>Not perfect people.</div>
+   </aside>
+  </section>
+
+  <footer className="site-footer"><span>AREA © 2026</span><span>A Nigerian digital society.</span><Link href="/signup">Come inside ↗</Link></footer>
+ </main>;
 }
