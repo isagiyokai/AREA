@@ -51,7 +51,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
    {!posts?.length?<p className="notice">No posts yet. Everybody has a first word.</p>:posts.map(post=><article className="citizen-post" key={post.id}>
     <div className="citizen-post-date">{new Date(post.created_at).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"})}</div>
     <p>{post.content}</p>
-    <Link href={"/#post-"+post.id} className="text-action">View conversation ↗</Link>
+    <Link href={"/p/"+post.id} className="text-action">View conversation ↗</Link>
    </article>)}
    {count&&count>40?<p className="notice">Showing the latest 40 posts.</p>:null}
   </section>
