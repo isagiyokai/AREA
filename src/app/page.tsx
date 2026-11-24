@@ -8,12 +8,12 @@ export default async function Home() {
  const supabase=await createClient();
  let posts: Array<{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}>= [];
  let signedIn=false;
- let currentUserId:string|null=null;
+ let currentUserId:string|null=null;\n let unreadCount=0;
  if(supabase){
   const {data:{user}}=await supabase.auth.getUser();
   signedIn=!!user;
   currentUserId=user?.id??null;
-  const {data}=await supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  const [{data},unread]=await Promise.all([supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
   if(data)posts=data as typeof posts;
  }
  return <main className="shell">
@@ -26,7 +26,7 @@ export default async function Home() {
     <span className="nav-muted">Territories <small>soon</small></span>
    </nav>
    <div className="top-actions">
-    {signedIn?<Link href="/account" className="account-link">My account ↗</Link>:<Link href="/login" className="account-link">Sign in</Link>}
+    {signedIn?<Link href="/account" className="account-link">My account{unreadCount>0?<span className="nav-notice">{unreadCount>9?"9+":unreadCount}</span>:""} ↗</Link>:<Link href="/login" className="account-link">Sign in</Link>}
     <Link className="btn primary" href={signedIn?"/account":"/signup"}>{signedIn?"Your corner":"Join the street"}</Link>
    </div>
   </header>
