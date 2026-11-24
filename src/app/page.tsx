@@ -36,7 +36,7 @@ export default async function Home() {
    <Link href="/" className="brand" aria-label="AREA home">AREA<span>.</span></Link>
    <nav className="nav" aria-label="Main navigation">
     <a className="nav-current" href="#feed">The street</a>
-    <a href="#talking-points">Gbas Gbos</a>
+    <Link href="/gbas-gbos">Gbas Gbos</Link>
     <span className="nav-muted">Market <small>soon</small></span>
     <span className="nav-muted">Territories <small>soon</small></span>
    </nav>
@@ -63,7 +63,7 @@ export default async function Home() {
     <div className="rail-block">
      <h2 className="rail-title">Find your way</h2>
      <a className="rail-link rail-active" href="#feed"><span>01</span> The street</a>
-     <a className="rail-link" href="#talking-points"><span>02</span> Gbas Gbos</a>
+     <Link className="rail-link" href="/gbas-gbos"><span>02</span> Gbas Gbos</Link>
      <div className="rail-link rail-soon"><span>03</span> AREA Market <small>SOON</small></div>
      <div className="rail-link rail-soon"><span>04</span> Territories <small>SOON</small></div>
      <div className="rail-link rail-soon"><span>05</span> Society <small>SOON</small></div>
@@ -78,11 +78,11 @@ export default async function Home() {
    <div className="feed-column"><Feed initialPosts={posts} initialFollowingPosts={followingPosts} signedIn={signedIn} currentUserId={currentUserId}/></div>
    <aside className="right">
     <div className="talk-panel" id="talking-points">
-     <div className="talk-heading"><span className="mini-label">OPEN QUESTIONS</span><span className="talk-count">PICK A SIDE</span></div>
+     <div className="talk-heading"><span className="mini-label">GBAS GBOS</span><Link className="talk-count" href="/gbas-gbos">ENTER THE RING ↗</Link></div>
      <h2>Wetin dey your mind?</h2>
-     <a className="talk-item" href="#feed"><span>01 / FOOD</span><strong>Jollof rice: who really get am?</strong><small>Start the argument ↗</small></a>
-     <a className="talk-item" href="#feed"><span>02 / EVERYDAY LIFE</span><strong>Soft life or hustle culture?</strong><small>Bring your own angle ↗</small></a>
-     <a className="talk-item" href="#feed"><span>03 / CULTURE</span><strong>Which Nigerian slang needs to retire?</strong><small>Say your mind ↗</small></a>
+     <Link className="talk-item" href="/gbas-gbos"><span>01 / FOOD</span><strong>Jollof rice: who really get am?</strong><small>Take it to Gbas Gbos ↗</small></a>
+     <a className="talk-item" href="#feed"><span>02 / EVERYDAY LIFE</span><strong>Soft life or hustle culture?</strong><small>Take it to Gbas Gbos ↗</small></a>
+     <a className="talk-item" href="#feed"><span>03 / CULTURE</span><strong>Which Nigerian slang needs to retire?</strong><small>Take it to Gbas Gbos ↗</small></a>
     </div>
     <div className="right-note"><span className="mini-label">A SMALL REMINDER</span><p>Talk your talk. Disagree well. You can always leave a conversation that has gone too far.</p></div>
     <div className="right-signoff">Made of people.<br/>Not perfect people.</div>
