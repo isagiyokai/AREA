@@ -193,3 +193,24 @@ button{color:inherit}
 .account-stat strong{font-size:12px}
 .nav-notice{display:inline-grid;place-items:center;min-width:17px;height:17px;border-radius:50%;padding:0 4px;margin-left:5px;background:var(--accent);color:#fff;font:9px Arial,sans-serif}
 @media(max-width:700px){.account-grid{grid-template-columns:1fr}.account-side{order:-1}.profile-editor-foot{align-items:flex-start;flex-direction:column}.account-top-links{gap:12px}}
+
+/* Public citizen profiles */
+.profile-name-link{color:inherit}
+.profile-name-link:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.citizen-shell{padding-bottom:30px}
+.citizen-cover{padding:36px 0 22px;border-bottom:1px solid var(--ink)}
+.citizen-identity{display:flex;align-items:center;gap:16px;margin:17px 0}
+.citizen-avatar{width:66px;height:66px;display:grid;place-items:center;background:#e6d3c8;color:var(--accent);border:1px solid #d8b6aa;border-radius:50%;font:700 29px Georgia,serif}
+.citizen-identity h1{font:700 clamp(36px,5vw,54px)/1 Georgia,serif;letter-spacing:-2px;margin:0}
+.citizen-identity p{font:11px 'Courier New',monospace;color:var(--muted);margin:7px 0 0}
+.citizen-bio{max-width:620px;font:16px/1.6 Georgia,serif;color:#49443d;margin:17px 0}
+.citizen-meta{display:flex;gap:22px;flex-wrap:wrap;font:9px 'Courier New',monospace;letter-spacing:.7px;color:var(--muted)}
+.citizen-meta span+span{color:var(--accent)}
+.citizen-activity{max-width:760px;padding-top:22px}
+.citizen-activity-head{display:flex;justify-content:space-between;align-items:end;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.citizen-activity-head h2{font:700 22px Georgia,serif;margin:7px 0 0}
+.citizen-post-count{font:10px 'Courier New',monospace;color:var(--muted)}
+.citizen-post{padding:17px 0;border-bottom:1px solid var(--line)}
+.citizen-post-date{font:10px 'Courier New',monospace;color:var(--muted)}
+.citizen-post p{font:15px/1.65 Georgia,serif;color:#302d28;margin:9px 0}
+@media(max-width:620px){.citizen-cover{padding-top:25px}.citizen-identity h1{font-size:38px}.citizen-avatar{width:56px;height:56px}.citizen-bio{font-size:14px}}
