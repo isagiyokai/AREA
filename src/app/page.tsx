@@ -15,15 +15,16 @@ export default async function Home() {
   const {data:{user}}=await supabase.auth.getUser();
   signedIn=!!user;
   currentUserId=user?.id??null;
-  const postsQuery=supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,profiles(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  if(postError)console.error("AREA street feed query failed:",postError.message);
+  if(postData)posts=postData as typeof posts;
   const unreadQuery=user
    ?supabase.from("notifications").select("id",{count:"exact",head:true}).eq("recipient_id",user.id).is("read_at",null)
    :Promise.resolve({count:0,data:null,error:null});
   const followsQuery=user
    ?supabase.from("follows").select("followed_id").eq("follower_id",user.id)
    :Promise.resolve({data:[],error:null});
-  const [{data},unread,followRows]=await Promise.all([postsQuery,unreadQuery,followsQuery]);
-  if(data)posts=data as typeof posts;
+  const [unread,followRows]=await Promise.all([unreadQuery,followsQuery]);
   unreadCount=unread.count??0;
   if(user){
    const circleAuthors=[user.id,...(followRows.data??[]).map(row=>row.followed_id)];
