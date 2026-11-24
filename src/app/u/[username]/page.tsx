@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import FollowButton from "@/components/follow-button";
 
 type Profile={
  id:string;
@@ -22,11 +23,17 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
   .eq("username",username.toLowerCase())
   .maybeSingle();
  if(!profile)notFound();
- const {data:posts,count}=await supabase.from("posts")
+ const {data:{user}}=await supabase.auth.getUser();
+ const [{data:posts,count},{count:followers},{count:following},{data:followRow}]=await Promise.all([
+  supabase.from("posts")
   .select("id,content,created_at",{count:"exact"})
   .eq("author_id",profile.id)
   .order("created_at",{ascending:false})
-  .limit(40);
+  .limit(40),
+  supabase.from("follows").select("follower_id",{count:"exact",head:true}).eq("followed_id",profile.id),
+  supabase.from("follows").select("followed_id",{count:"exact",head:true}).eq("follower_id",profile.id),
+  user&&user.id!==profile.id?supabase.from("follows").select("follower_id").eq("follower_id",user.id).eq("followed_id",profile.id).maybeSingle():Promise.resolve({data:null,error:null})
+ ]);
  const citizen=profile as Profile;
  return <main className="shell citizen-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">← The street</Link><Link href="/account">My account</Link></div></header>
@@ -37,7 +44,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
     <div><h1>{citizen.display_name}</h1><p>@{citizen.username}</p></div>
    </div>
    <p className="citizen-bio">{citizen.bio||"No bio yet. Let the conversations do the talking."}</p>
-   <div className="citizen-meta"><span>IN AREA SINCE {new Date(citizen.created_at).toLocaleDateString("en-NG",{month:"short",year:"numeric"}).toUpperCase()}</span><span>{count??0} POSTS</span></div>
+   <div className="citizen-follow-row"><div className="citizen-meta"><span>IN AREA SINCE {new Date(citizen.created_at).toLocaleDateString("en-NG",{month:"short",year:"numeric"}).toUpperCase()}</span><span>{count??0} POSTS</span><span>{following??0} FOLLOWING</span></div><FollowButton profileId={citizen.id} currentUserId={user?.id??null} initialFollowing={!!followRow} initialFollowers={followers??0}/></div>
   </section>
   <section className="citizen-activity">
    <div className="citizen-activity-head"><div><span className="mini-label">PUBLIC ACTIVITY</span><h2>What they've been saying</h2></div><span className="citizen-post-count">{count??0} total</span></div>
