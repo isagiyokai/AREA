@@ -44,7 +44,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
     <div><h1>{citizen.display_name}</h1><p>@{citizen.username}</p></div>
    </div>
    <p className="citizen-bio">{citizen.bio||"No bio yet. Let the conversations do the talking."}</p>
-   <div className="citizen-follow-row"><div className="citizen-meta"><span>IN AREA SINCE {new Date(citizen.created_at).toLocaleDateString("en-NG",{month:"short",year:"numeric"}).toUpperCase()}</span><span>{count??0} POSTS</span><span>{following??0} FOLLOWING</span></div><FollowButton profileId={citizen.id} currentUserId={user?.id??null} initialFollowing={!!followRow} initialFollowers={followers??0}/></div>
+   <div className="citizen-follow-row"><div className="citizen-meta"><span>IN AREA SINCE {new Date(citizen.created_at).toLocaleDateString("en-NG",{month:"short",year:"numeric"}).toUpperCase()}</span><span>{count??0} POSTS</span><span>{following??0} FOLLOWING</span></div><div className="citizen-actions">{user&&user.id!==citizen.id&&<Link className="btn primary" href={"/messages/"+encodeURIComponent(citizen.username)}>Message ↗</Link>}<FollowButton profileId={citizen.id} currentUserId={user?.id??null} initialFollowing={!!followRow} initialFollowers={followers??0}/></div></div>
   </section>
   <section className="citizen-activity">
    <div className="citizen-activity-head"><div><span className="mini-label">PUBLIC ACTIVITY</span><h2>What they've been saying</h2></div><span className="citizen-post-count">{count??0} total</span></div>
