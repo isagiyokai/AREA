@@ -32,7 +32,7 @@ export default async function Account(){
   </div>
   <section className="panel account-panel notifications-panel">
    <div className="notifications-heading"><h2 className="heading">The postman</h2><span>{unread} unread</span></div>
-   {!items.length?<p className="notice">Nothing in the post yet. Replies, quotes and Gbas Gbos callouts will show up here.</p>:
+   {!items.length?<p className="notice">Nothing in the post yet. Replies, quotes, mentions and Gbas Gbos callouts will show up here.</p>:
     <div className="notification-list">{items.map(n=><article className={n.read_at?"notification-item":"notification-item unread"} key={n.id}>
      <div className="notification-copy"><div className="notification-type">{n.notification_type==="argument_invitation"?"Gbas Gbos callout":n.notification_type.replaceAll("_"," ")}</div><p>{n.message}</p><time>{new Date(n.created_at).toLocaleString()}</time></div>
      <div className="notification-actions">{n.post_id&&<Link className="text-action" href={"/p/"+n.post_id}>Open conversation</Link>}{!n.read_at&&<form action="/notifications/read" method="post"><input type="hidden" name="notification_id" value={n.id}/><button className="text-action" type="submit">Mark read</button></form>}</div>
