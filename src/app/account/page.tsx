@@ -24,7 +24,7 @@ export default async function Account(){
  const items=(notifications??[]) as Notification[];
  const unread=items.filter(n=>!n.read_at).length;
  return <main className="shell account-shell">
-  <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><Link href="/bookmarks">Saved posts ↗</Link><Link href="/explore">Explore ↗</Link><form action="/auth/signout" method="post"><button className="text-action" type="submit">Sign out</button></form></div></header>
+  <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><Link href="/bookmarks">Saved posts ↗</Link><Link href="/explore">Explore ↗</Link><Link href="/messages">Messages ↗</Link><form action="/auth/signout" method="post"><button className="text-action" type="submit">Sign out</button></form></div></header>
   <section className="account-intro"><div className="eyebrow">Citizen file / {profile?.area_class?.toUpperCase()||"SLUMS"}</div><h1>{profile?.display_name||"AREA Citizen"}</h1><p>@{profile?.username||"citizen"} <span>·</span> Joined {profile?.created_at?new Date(profile.created_at).toLocaleDateString():"recently"}</p></section>
   <div className="account-grid">
    <div className="account-main"><ProfileEditor userId={user.id} initialDisplayName={profile?.display_name||""} initialUsername={profile?.username||""} initialBio={profile?.bio||""}/></div>
