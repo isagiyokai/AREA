@@ -22,7 +22,7 @@ const personOf=(v:Person|Person[]|null):Person|null=>Array.isArray(v)?v[0]??null
 const when=(v:string)=>new Date(v).toLocaleString();
 function renderStreetText(value:string){
  const nodes:ReactNode[]=[];
- const tokenPattern=/(^|[\\s([{,;:!?])(@[a-z0-9_]{3,24}|#[a-z0-9_]{2,32})/gi;
+ const tokenPattern=/(^|[\s([{,;:!?])(@[a-z0-9_]{3,24}|#[a-z0-9_]{2,32})/gi;
  let cursor=0,match:RegExpExecArray|null,index=0;
  while((match=tokenPattern.exec(value))!==null){
   if(match.index>cursor)nodes.push(value.slice(cursor,match.index));
