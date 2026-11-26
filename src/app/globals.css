@@ -390,3 +390,13 @@ button{color:inherit}
 .admin-citizen{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}.admin-citizen>span{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;background:#e8d9cb;color:var(--accent);font:700 14px Georgia,serif}.admin-citizen div{display:grid;gap:3px;flex:1}.admin-citizen strong{font-size:11px}.admin-citizen small{font:9px 'Courier New',monospace;color:var(--muted)}.admin-citizen>b{color:var(--accent)}.admin-side-note{padding:17px;background:#e9eee4;border:1px solid #d2ddce}.admin-side-note p{font:15px/1.55 Georgia,serif;color:#38513f;margin:10px 0 0}
 @media(max-width:760px){.admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-metrics article:last-child{grid-column:span 2}.admin-columns{grid-template-columns:1fr}.admin-console-mark{position:static;display:block;margin-top:15px}.dm-bubble{max-width:88%}}
 @media(max-width:520px){.messages-intro{padding:30px 0 20px}.dm-inbox-row{padding:12px}.dm-compose-foot{align-items:flex-start;flex-direction:column}.dm-compose-foot .btn{align-self:flex-end}.admin-masthead{padding:30px 0 24px}.admin-metrics article{padding:11px}.admin-metrics article strong{font-size:25px}}
+
+/* Verified owner marker and citizen safety controls */
+.admin-profile-tag{display:inline-flex;vertical-align:middle;align-items:center;margin-left:7px;padding:3px 6px;background:#111;color:#fff;border:1px solid #111;font:700 8px/1 'Courier New',monospace;letter-spacing:1px;border-radius:2px}
+.profile-report,.profile-block{display:inline-flex;align-items:center}
+.profile-block .text-action{color:var(--muted)}
+.reply-actions{display:flex;gap:12px;align-items:center;margin-top:5px}
+.dm-blocked-notice{max-width:850px;margin:20px 0 48px;padding:22px;border:1px solid var(--ink);background:var(--paper)}
+.dm-blocked-notice strong{font:700 17px Georgia,serif}
+.dm-blocked-notice p{font:13px/1.6 Georgia,serif;color:var(--muted)}
+.dm-blocked-notice a{font-size:11px;color:var(--accent)}
