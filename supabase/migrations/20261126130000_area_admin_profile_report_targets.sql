@@ -14,10 +14,11 @@ begin
   'recent_posts',coalesce((select jsonb_agg(x) from (select po.id,po.content,po.created_at,pr.username,pr.display_name from public.posts po join public.profiles pr on pr.id=po.author_id order by po.created_at desc limit 8) x),'[]'::jsonb),
   'reports',coalesce((select jsonb_agg(x) from (
     select r.id,r.target_type,r.target_id,r.reason,r.details,r.status,r.created_at,
-      reporter.username as reporter_username,target.username as target_username
+      reporter.username as reporter_username,target.username as target_username,reply.post_id as target_post_id
     from public.content_reports r
     join public.profiles reporter on reporter.id=r.reporter_id
     left join public.profiles target on r.target_type='profile' and target.id=r.target_id
+    left join public.replies reply on r.target_type='reply' and reply.id=r.target_id
     where r.status in ('open','under_review') order by r.created_at desc limit 20
   ) x),'[]'::jsonb)
  ) into v_result;
