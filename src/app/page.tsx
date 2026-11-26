@@ -11,14 +11,17 @@ export default async function Home() {
  let followingPosts: FeedPost[]=[];
  let signedIn=false;
  let currentUserId:string|null=null;
+ let blockedUserIds:string[]=[];
  let unreadCount=0;
  if(supabase){
   const {data:{user}}=await supabase.auth.getUser();
   signedIn=!!user;
   currentUserId=user?.id??null;
+  if(user){const {data:blocks}=await supabase.from("user_blocks").select("blocked_user_id").eq("user_id",user.id);blockedUserIds=(blocks??[]).map(row=>row.blocked_user_id);}
+  const blockedSet=new Set(blockedUserIds);
   const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
   if(postError)console.error("AREA street feed query failed:",postError.message);
-  if(postData)posts=postData as typeof posts;
+  if(postData)posts=postData.filter(post=>!blockedSet.has(post.author_id)) as typeof posts;
   const unreadQuery=user
    ?supabase.from("notifications").select("id",{count:"exact",head:true}).eq("recipient_id",user.id).is("read_at",null)
    :Promise.resolve({count:0,data:null,error:null});
@@ -30,7 +33,7 @@ export default async function Home() {
   if(user){
    const circleAuthors=[user.id,...(followRows.data??[]).map(row=>row.followed_id)];
    const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("author_id",circleAuthors).order("created_at",{ascending:false}).limit(40);
-   if(circleData)followingPosts=circleData as typeof posts;
+   if(circleData)followingPosts=circleData.filter(post=>!blockedSet.has(post.author_id)) as typeof posts;
   }
   const quoteIds=Array.from(new Set([...posts,...followingPosts].flatMap(p=>p.quoted_post_id?[p.quoted_post_id]:[])));
   if(quoteIds.length){
@@ -88,7 +91,7 @@ export default async function Home() {
      <span className="entry-stamp">SLUMS · FREE ENTRY</span>
     </div>
    </aside>
-   <div className="feed-column"><Feed initialPosts={posts} initialFollowingPosts={followingPosts} signedIn={signedIn} currentUserId={currentUserId}/></div>
+   <div className="feed-column"><Feed initialPosts={posts} initialFollowingPosts={followingPosts} signedIn={signedIn} currentUserId={currentUserId} blockedUserIds={blockedUserIds}/></div>
    <aside className="right">
     <div className="talk-panel" id="talking-points">
      <div className="talk-heading"><span className="mini-label">GBAS GBOS</span><Link className="talk-count" href="/gbas-gbos">ENTER THE RING ↗</Link></div>
