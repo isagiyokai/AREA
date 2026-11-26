@@ -1,0 +1,1 @@
+alter table public.profiles alter column area_class drop not null; update public.profiles set area_class = null where lower(username) = 'mrrobot';
