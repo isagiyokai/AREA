@@ -25,6 +25,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
   .maybeSingle();
  if(!profile)notFound();
  const {data:{user}}=await supabase.auth.getUser();
+ const {data:isAdmin}=await supabase.rpc("is_area_admin_profile",{p_user_id:profile.id});
  const [{data:posts,count},{count:followers},{count:following},{data:followRow}]=await Promise.all([
   supabase.from("posts")
   .select("id,content,created_at",{count:"exact"})
@@ -39,10 +40,10 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
  return <main className="shell citizen-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">← The street</Link><Link href="/account">My account</Link></div></header>
   <section className="citizen-cover">
-   <span className="mini-label">CITIZEN / {citizen.area_class.toUpperCase()}</span>
+   <span className="mini-label">{isAdmin?"AREA ADMIN":"CITIZEN / "+citizen.area_class.toUpperCase()}</span>
    <div className="citizen-identity">
     <div className="citizen-avatar">{citizen.display_name.slice(0,1).toUpperCase()}</div>
-    <div><h1>{citizen.display_name}</h1><p>@{citizen.username}</p></div>
+    <div><h1>{citizen.display_name} {isAdmin&&<span className="admin-profile-tag">ADMIN</span>}</h1><p>@{citizen.username}</p></div>
    </div>
    <p className="citizen-bio">{citizen.bio||"No bio yet. Let the conversations do the talking."}</p>
    <div className="citizen-follow-row"><div className="citizen-meta"><span>IN AREA SINCE {new Date(citizen.created_at).toLocaleDateString("en-NG",{month:"short",year:"numeric"}).toUpperCase()}</span><span>{count??0} POSTS</span><span>{following??0} FOLLOWING</span></div><div className="citizen-actions">{user&&user.id!==citizen.id&&<Link className="btn primary" href={"/messages/"+encodeURIComponent(citizen.username)}>Message ↗</Link>}<FollowButton profileId={citizen.id} currentUserId={user?.id??null} initialFollowing={!!followRow} initialFollowers={followers??0}/>{user&&user.id!==citizen.id&&<ReportCitizen profileId={citizen.id} currentUserId={user.id}/>}</div></div>
