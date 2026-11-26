@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -11,7 +11,13 @@ const topics=[{tag:"FOOD & CULTURE",title:"Jollof rice: who really get am?",star
 const person=(v:Challenge["challenger"])=>Array.isArray(v)?v[0]:v;
 const post=(v:Challenge["posts"])=>Array.isArray(v)?v[0]:v;
 export default function GbasGbosBoard({initialPosts,initialChallenges,signedIn}:{initialPosts:TopicPost[];initialChallenges:Challenge[];signedIn:boolean}){
- const router=useRouter();const [draft,setDraft]=useState("");const [busy,setBusy]=useState(false);const [error,setError]=useState("");const [filter,setFilter]=useState<"all"|"active"|"pending">("all");const [postOrder,setPostOrder]=useState<"fresh"|"discussed">("fresh");
+ const router=useRouter();
+ useEffect(()=>{const sb=createClient();const channel=sb.channel("gbas-gbos-live")
+  .on("postgres_changes",{event:"*",schema:"public",table:"posts"},()=>router.refresh())
+  .on("postgres_changes",{event:"*",schema:"public",table:"replies"},()=>router.refresh())
+  .on("postgres_changes",{event:"*",schema:"public",table:"argument_challenges"},()=>router.refresh())
+  .subscribe();return()=>{void sb.removeChannel(channel);};},[router]);
+ const [draft,setDraft]=useState("");const [busy,setBusy]=useState(false);const [error,setError]=useState("");const [filter,setFilter]=useState<"all"|"active"|"pending">("all");const [postOrder,setPostOrder]=useState<"fresh"|"discussed">("fresh");
  async function start(text:string){setError("");if(!signedIn){router.push("/login");return;}const value=text.trim();if(value.length<3||value.length>500)return;setBusy(true);try{const sb=createClient();const {data:{user}}=await sb.auth.getUser();if(!user)throw new Error("Please sign in again.");const {data,error}=await sb.from("posts").insert({author_id:user.id,content:value}).select("id").single();if(error)throw error;router.push("/p/"+data.id);router.refresh();}catch(e){setError(e instanceof Error?e.message:"Could not start this argument.");}finally{setBusy(false);}}
  const visibleChallenges=initialChallenges.filter(c=>filter==="all"||c.status===filter);const orderedPosts=[...initialPosts].sort((a,b)=>postOrder==="discussed"?(b.replyCount-a.replyCount||new Date(b.created_at).getTime()-new Date(a.created_at).getTime()):new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
  return <main className="shell gbas-shell">
