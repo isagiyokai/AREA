@@ -10,7 +10,7 @@ type Profile={
  username:string;
  display_name:string;
  bio:string|null;
- area_class:string;
+ area_class:string|null;
  created_at:string;
 };
 
@@ -41,7 +41,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
  return <main className="shell citizen-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">← The street</Link><Link href="/account">My account</Link></div></header>
   <section className="citizen-cover">
-   <span className="mini-label">{isAdmin?"AREA ADMIN":"CITIZEN / "+citizen.area_class.toUpperCase()}</span>
+   <span className="mini-label">{isAdmin?"AREA ADMIN":citizen.area_class?"CITIZEN / "+citizen.area_class.toUpperCase():"CITIZEN"}</span>
    <div className="citizen-identity">
     <div className="citizen-avatar">{citizen.display_name.slice(0,1).toUpperCase()}</div>
     <div><h1>{citizen.display_name} {isAdmin&&<span className="admin-profile-tag">ADMIN</span>}</h1><p>@{citizen.username}</p></div>
