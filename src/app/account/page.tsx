@@ -18,9 +18,10 @@ export default async function Account(){
  if(!supabase)redirect("/login");
  const {data:{user}}=await supabase.auth.getUser();
  if(!user)redirect("/login");
- const [{data:profile},{data:notifications}]=await Promise.all([
+ const [{data:profile},{data:notifications},{data:isAdmin}]=await Promise.all([
   supabase.from("profiles").select("username,display_name,bio,area_class,created_at").eq("id",user.id).single(),
-  supabase.from("notifications").select("id,notification_type,message,actor_id,post_id,created_at,read_at").eq("recipient_id",user.id).order("created_at",{ascending:false}).limit(30)
+  supabase.from("notifications").select("id,notification_type,message,actor_id,post_id,created_at,read_at").eq("recipient_id",user.id).order("created_at",{ascending:false}).limit(30),
+  supabase.rpc("is_area_admin_profile",{p_user_id:user.id})
  ]);
  const items=(notifications??[]) as Notification[];
  const actorIds=[...new Set(items.flatMap(n=>n.actor_id?[n.actor_id]:[]))];
@@ -29,10 +30,10 @@ export default async function Account(){
  const unread=items.filter(n=>!n.read_at).length;
  return <main className="shell account-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><Link href="/bookmarks">Saved posts ↗</Link><Link href="/explore">Explore ↗</Link><Link href="/messages">Messages ↗</Link><form action="/auth/signout" method="post"><button className="text-action" type="submit">Sign out</button></form></div></header>
-  <section className="account-intro"><div className="eyebrow">Citizen file / {profile?.area_class?.toUpperCase()||"SLUMS"}</div><h1>{profile?.display_name||"AREA Citizen"}</h1><p>@{profile?.username||"citizen"} <span>·</span> Joined {profile?.created_at?new Date(profile.created_at).toLocaleDateString():"recently"}</p></section>
+  <section className="account-intro"><div className="eyebrow">{isAdmin?"AREA ADMIN":profile?.area_class?"Citizen file / "+profile.area_class.toUpperCase():"Citizen file"}</div><h1>{profile?.display_name||"AREA Citizen"}</h1><p>@{profile?.username||"citizen"} <span>·</span> Joined {profile?.created_at?new Date(profile.created_at).toLocaleDateString():"recently"}</p></section>
   <div className="account-grid">
    <div className="account-main"><ProfileEditor userId={user.id} initialDisplayName={profile?.display_name||""} initialUsername={profile?.username||""} initialBio={profile?.bio||""}/></div>
-   <aside className="account-side"><span className="mini-label">YOUR PLACE IN AREA</span><div className="account-class">{(profile?.area_class||"slums").toUpperCase()}</div><p>Everybody starts somewhere. Your name, your relationships and what you do here will shape your story.</p><div className="account-stat"><span>NOTIFICATIONS</span><strong>{unread} unread</strong></div></aside>
+   <aside className="account-side"><span className="mini-label">YOUR PLACE IN AREA</span><div className="account-class">{isAdmin?"ADMIN":profile?.area_class?.toUpperCase()||"UNCLASSIFIED"}</div><p>Your name, your relationships and what you do here will shape your place in the street.</p><Link className="text-action" href="/leaderboard">View street standing ↗</Link><div className="account-stat"><span>NOTIFICATIONS</span><strong>{unread} unread</strong></div></aside>
   </div>
   <section className="panel account-panel notifications-panel">
    <div className="notifications-heading"><h2 className="heading">The postman</h2><span>{unread} unread</span></div>
