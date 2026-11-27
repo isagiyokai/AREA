@@ -19,24 +19,28 @@ export default async function Account(){
  if(!supabase)redirect("/login");
  const {data:{user}}=await supabase.auth.getUser();
  if(!user)redirect("/login");
- const [{data:profile},{data:notifications},{data:isAdmin},{data:penance}]=await Promise.all([
-  supabase.from("profiles").select("username,display_name,bio,area_class,created_at").eq("id",user.id).single(),
+ const [{data:profile},{data:notifications},{data:isAdmin},{data:penance},{data:starterIntro}]=await Promise.all([
+  supabase.from("profiles").select("username,display_name,bio,area_class,area_grade,area_entry_tier,created_at").eq("id",user.id).single(),
   supabase.from("notifications").select("id,notification_type,message,actor_id,post_id,community_case_id,created_at,read_at").eq("recipient_id",user.id).order("created_at",{ascending:false}).limit(30),
   supabase.rpc("is_area_admin_profile",{p_user_id:user.id}),
-  supabase.from("citizen_penances").select("ends_at").eq("user_id",user.id).gt("ends_at",new Date().toISOString()).order("ends_at",{ascending:false}).limit(1).maybeSingle()
+  supabase.from("citizen_penances").select("ends_at").eq("user_id",user.id).gt("ends_at",new Date().toISOString()).order("ends_at",{ascending:false}).limit(1).maybeSingle(),
+  supabase.from("citizen_introductions").select("id,requester_id,introduced_id,target_class,status,created_at").or(`requester_id.eq.${user.id},introduced_id.eq.${user.id}`).order("created_at",{ascending:false}).limit(1).maybeSingle()
  ]);
  const items=(notifications??[]) as Notification[];
  const actorIds=[...new Set(items.flatMap(n=>n.actor_id?[n.actor_id]:[]))];
  const {data:actors}=actorIds.length?await supabase.from("profiles").select("id,username").in("id",actorIds):{data:[] as {id:string;username:string}[]};
  const actorNames=new Map((actors??[]).map(a=>[a.id,a.username]));
  const unread=items.filter(n=>!n.read_at).length;
+ const introOtherId=starterIntro?(starterIntro.requester_id===user.id?starterIntro.introduced_id:starterIntro.requester_id):null;
+ const {data:introOther}=introOtherId?await supabase.from("profiles").select("username,display_name").eq("id",introOtherId).maybeSingle():{data:null};
  return <main className="shell account-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><Link href="/bookmarks">Saved posts ↗</Link><Link href="/explore">Explore ↗</Link><Link href="/leaderboard">Leaderboard ↗</Link><Link href="/messages">Messages ↗</Link><Link href="/wallet">AC Wallet ↗</Link><Link href="/market">AREA Market ↗</Link><Link href="/territories">Territories ↗</Link><Link href="/wolves">Community court ↗</Link><form action="/auth/signout" method="post"><button className="text-action" type="submit">Sign out</button></form></div></header>
-  <section className="account-intro"><div className="eyebrow">{isAdmin?"AREA ADMIN":profile?.area_class?"Citizen file / "+profile.area_class.toUpperCase():"Citizen file"}</div><h1>{profile?.display_name||"AREA Citizen"}</h1><p>@{profile?.username||"citizen"} <span>·</span> Joined {profile?.created_at?new Date(profile.created_at).toLocaleDateString():"recently"}</p></section>
+  <section className="account-intro"><div className="eyebrow">{isAdmin?"AREA ADMIN":profile?.area_class?"Citizen file / "+profile.area_class.toUpperCase()+(profile.area_grade?" · "+profile.area_grade:""):"Citizen file"}</div><h1>{profile?.display_name||"AREA Citizen"}</h1><p>@{profile?.username||"citizen"} <span>·</span> Joined {profile?.created_at?new Date(profile.created_at).toLocaleDateString():"recently"}</p></section>
+  {starterIntro&&<section className="starter-intro-banner"><span className="mini-label">STARTER CONNECTION / {starterIntro.target_class.toUpperCase()}</span>{starterIntro.status==="pending"?<><strong>Your introduction is in the queue.</strong><p>There is no {starterIntro.target_class.toUpperCase()} citizen available to pair with yet. AREA will assign the introduction when one joins.</p></>:<><strong>{starterIntro.requester_id===user.id?"Your starting connection":"You are a starting connection"}</strong><p>{introOther?<>You are connected with <Link href={"/u/"+introOther.username}>@{introOther.username}</Link> ({introOther.display_name||"AREA citizen"}).</>: "Your starter connection has been assigned."}</p>{introOther&&<Link className="text-action" href={"/messages/"+introOther.username}>Open conversation ↗</Link>}</>}</section>}
   {penance&&<section className="penance-banner"><span className="mini-label">COMMUNITY PENANCE</span><strong>You are serving a one-day penance.</strong><p>Posting, replying and starting new Gbas Gbos callouts are paused until {new Date(penance.ends_at).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"})}. You can still read the street and take part in community votes.</p></section>}
   <div className="account-grid">
    <div className="account-main"><ProfileEditor userId={user.id} initialDisplayName={profile?.display_name||""} initialUsername={profile?.username||""} initialBio={profile?.bio||""}/></div>
-   <aside className="account-side"><span className="mini-label">YOUR PLACE IN AREA</span><div className="account-class">{isAdmin?"ADMIN":profile?.area_class?.toUpperCase()||"UNCLASSIFIED"}</div><p>Your name, your relationships and what you do here will shape your place in the street.</p><Link className="text-action" href="/leaderboard">View street standing ↗</Link><div className="account-stat"><span>NOTIFICATIONS</span><strong>{unread} unread</strong></div></aside>
+   <aside className="account-side"><span className="mini-label">YOUR PLACE IN AREA</span><div className="account-class">{isAdmin?"ADMIN":profile?.area_class?.toUpperCase()||"UNCLASSIFIED"}{profile?.area_grade&&<small>{profile.area_grade}</small>}</div><p>Your name, your relationships and what you do here will shape your place in the street.</p><Link className="text-action" href="/leaderboard">View street standing ↗</Link><div className="account-stat"><span>NOTIFICATIONS</span><strong>{unread} unread</strong></div></aside>
   </div>
   <section className="panel account-panel notifications-panel">
    <div className="notifications-heading"><h2 className="heading">The postman</h2><span>{unread} unread</span></div>
