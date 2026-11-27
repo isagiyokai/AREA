@@ -6,7 +6,7 @@ export const dynamic="force-dynamic";
 export default async function TerritoriesPage(){
  const supabase=await createClient();if(!supabase)redirect("/login");const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login");
  const {data:territoryRows}=await supabase.from("agbero_territories").select("id,name,description,stamp_duty_ac,owner_id,owner:profiles!agbero_territories_owner_id_fkey(username,display_name)").eq("active",true).order("created_at",{ascending:true});
- const {data:membershipRow}=await supabase.from("agbero_memberships").select("id,territory_id,citizen_id,duty_due_ac,duty_paid_ac,entered_at,noncash_obligation,noncash_completed,territory:agbero_territories(name)").eq("citizen_id",user.id).eq("status","inside").maybeSingle();
+ const {data:membershipRow}=await supabase.from("agbero_memberships").select("id,territory_id,citizen_id,duty_due_ac,duty_paid_ac,entered_at,noncash_obligation,noncash_completed").eq("citizen_id",user.id).eq("status","inside").maybeSingle();
  const {data:ownedRows}=await supabase.from("agbero_territories").select("id,name,description,stamp_duty_ac,owner_id").eq("owner_id",user.id).eq("active",true);
  const ownerIds=(ownedRows??[]).map(t=>t.id);
  const {data:memberRows}=ownerIds.length?await supabase.from("agbero_memberships").select("id,territory_id,citizen_id,duty_due_ac,duty_paid_ac,entered_at,noncash_obligation,noncash_completed").in("territory_id",ownerIds).eq("status","inside"): {data:[] as {id:string;territory_id:string;citizen_id:string;duty_due_ac:number;duty_paid_ac:number;entered_at:string;noncash_obligation:string|null;noncash_completed:boolean}[]};
@@ -14,7 +14,7 @@ export default async function TerritoriesPage(){
  const {data:profiles}=ids.length?await supabase.from("profiles").select("id,username,display_name").in("id",ids):{data:[] as {id:string;username:string;display_name:string|null}[]};
  const profileMap=new Map((profiles??[]).map(p=>[p.id,p]));
  const territories=(territoryRows??[]).map(t=>({...t,owner:Array.isArray(t.owner)?t.owner[0]??null:t.owner}));
- const membership=membershipRow?{...membershipRow,territory_name:Array.isArray(membershipRow.territory)?membershipRow.territory[0]?.name??"this territory":membershipRow.territory?.name??"this territory"}:null;
+ const membership=membershipRow?{...membershipRow,territory_name:territories.find(t=>t.id===membershipRow.territory_id)?.name??"this territory"}:null;
  const ownedMembers=(memberRows??[]).map(m=>({...m,territory_name:ownedRows?.find(t=>t.id===m.territory_id)?.name??"Territory",username:profileMap.get(m.citizen_id)?.username??"unknown",display_name:profileMap.get(m.citizen_id)?.display_name??"Citizen"}));
  return <main className="shell territory-shell"><header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><Link href="/wallet">AC wallet</Link><Link href="/account">My account</Link></div></header>
  <section className="territory-masthead"><span className="eyebrow">AREA / TERRITORIES</span><h1>Every ground<br/>has its <em>Agbero.</em></h1><p>Stamp duty, territory obligations and the people who can set you free. One shared society; many corners of influence.</p></section>
