@@ -39,10 +39,11 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
   supabase.from("citizen_standing").select("standing_points,standing_title,standing_rank,posts,replies,replies_received,followers,yard_points,yard_title,yard_rank,callouts_started,callouts_received,yard_replies").eq("user_id",profile.id).maybeSingle(),
   supabase.from("citizen_reputation").select("reputation_score,upheld_cases,dismissed_cases,reputation_title").eq("user_id",profile.id).maybeSingle(),
   supabase.from("citizen_achievements").select("achievement_key,title,description,category,earned_at").eq("user_id",profile.id).order("earned_at",{ascending:true}),
-  supabase.from("citizen_inventory").select("equipped,area_market_items!citizen_inventory_item_id_fkey(name,slug,category)").eq("user_id",profile.id).eq("equipped",true)
+  supabase.from("citizen_inventory").select("item_id").eq("user_id",profile.id).eq("equipped",true)
  ]);
  const citizen=profile as Profile;
- const equippedCosmetics=(cosmetics??[]).flatMap(item=>{const nested=Array.isArray(item.area_market_items)?item.area_market_items[0]:item.area_market_items;return nested?[nested]:[];});
+ const cosmeticIds=(cosmetics??[]).map(item=>item.item_id);
+ const {data:equippedCosmetics}=cosmeticIds.length?await supabase.from("area_market_items").select("name,slug,category").in("id",cosmeticIds):{data:[] as {name:string;slug:string;category:string}[]};
  return <main className="shell citizen-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">← The street</Link><Link href="/account">My account</Link><Link href="/market">Market</Link></div></header>
   <section className={"citizen-cover "+equippedCosmetics.map(item=>"cosmetic-"+item.slug).join(" ")}>
