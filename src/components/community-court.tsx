@@ -29,7 +29,8 @@ export default function CommunityCourt({cases,currentUserId}:{cases:CaseRow[];cu
    const expired=new Date(item.vote_closes_at).getTime()<=Date.now();
    const witnessing=item.phase==="witnessing";
    const target=item.target;
-   const isTarget=target&&false;
+   const isTarget=currentUserId===item.target_user_id;
+   const isOffended=currentUserId===item.offended_user_id;
    return <article className="wolves-case" id={"case-"+item.id} key={item.id}>
     <div className="wolves-case-top"><span className="mini-label">{item.severity.toUpperCase()} SEVERITY / {item.id.slice(0,8).toUpperCase()}</span><b className={"wolves-status "+item.status}>{witnessing?"WITNESS REVIEW":item.status.replaceAll("_"," ").toUpperCase()}</b></div>
     <h2>{target?.display_name||"AREA citizen"} <small>@{target?.username||"unknown"}</small></h2>
@@ -57,12 +58,11 @@ export default function CommunityCourt({cases,currentUserId}:{cases:CaseRow[];cu
       {expired&&item.status==="voting"&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"resolve_community_case",{p_case_id:item.id})}>Call the Wolves' verdict ↗</button>}
      </div>}
     {item.status==="upheld"&&!item.reinstated_at&&<div className="wolves-result"><strong>The community upheld the case.</strong><p>A 24-hour penance applies. A direct apology may create an earlier path back.</p></div>}
-    {item.status==="upheld"&&item.offended_user_id&&item.apology_accepted_at===null&&currentUserId===target?.username&&null}
     {item.status==="upheld"&&item.apology_text&&<div className="wolves-apology"><strong>APOLOGY FROM THE CITIZEN</strong><p>{item.apology_text}</p>{item.apology_submitted_at&&<small>Submitted {date(item.apology_submitted_at)}</small>}
-      {currentUserId===item.offended_user_id&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"accept_community_apology",{p_case_id:item.id})}>Accept apology · reinstate for the configured fee</button>}
+      {isOffended&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"accept_community_apology",{p_case_id:item.id})}>Accept apology · reinstate for the configured fee</button>}
      </div>}
-    {item.status==="upheld"&&!item.reinstated_at&&currentUserId===item.target?.username&&null}
-    {item.status==="upheld"&&!item.reinstated_at&&currentUserId===item.target_user_id&&item.offended_user_id&&<ApologyComposer caseId={item.id} value={apologies[item.id]??""} onChange={value=>setApologies(v=>({...v,[item.id]:value}))} busy={busy===item.id} onSubmit={()=>void act(item.id,"request_community_apology",{p_case_id:item.id,p_apology:apologies[item.id]??""})}/>}
+    {item.status==="upheld"&&!item.reinstated_at&&isTarget&&item.offended_user_id&&<ApologyComposer caseId={item.id} value={apologies[item.id]??""} onChange={value=>setApologies(v=>({...v,[item.id]:value}))} busy={busy===item.id} onSubmit={()=>void act(item.id,"request_community_apology",{p_case_id:item.id,p_apology:apologies[item.id]??""})}/>}
+    {item.status==="upheld"&&!item.reinstated_at&&isTarget&&!item.offended_user_id&&<p className="notice">No directly affected citizen was identified in this case, so the apology-and-forgiveness return route is unavailable.</p>}
     {item.reinstated_at&&<p className="wolves-result">Apology accepted. The citizen paid the return fee and has been reinstated. <small>{date(item.reinstated_at)}</small></p>}
     {item.status==="dismissed"&&<p className="wolves-result">The community did not uphold the case. No penance applies.</p>}
     {item.status==="insufficient_votes"&&<p className="wolves-result">Not enough eligible votes. No penalty applies.</p>}
@@ -72,8 +72,7 @@ export default function CommunityCourt({cases,currentUserId}:{cases:CaseRow[];cu
  </div>;
 }
 
-function ApologyComposer({caseId,currentUserId,targetUsername,value,onChange,busy,onSubmit}:{caseId:string;currentUserId:string;targetUsername:string;value:string;onChange:(value:string)=>void;busy:boolean;onSubmit:()=>void}){
- const [isTarget,setIsTarget]=useState(false);
+function ApologyComposer({caseId,value,onChange,busy,onSubmit}:{caseId:string;value:string;onChange:(value:string)=>void;busy:boolean;onSubmit:()=>void}){
  return <div className="wolves-apology-compose">
   <label htmlFor={"apology-"+caseId}>Your apology to the person affected</label>
   <textarea id={"apology-"+caseId} value={value} maxLength={1000} onChange={e=>onChange(e.target.value)} placeholder="Acknowledge what happened and apologise directly…" rows={3}/>
