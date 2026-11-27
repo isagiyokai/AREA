@@ -53,7 +53,7 @@ export default async function Home() {
     <Link href="/leaderboard">Leaderboard</Link><Link href="/wolves">Community court</Link>
     {signedIn&&<Link href="/bookmarks">Saved</Link>}{signedIn&&<Link href="/messages">Messages</Link>}{signedIn&&<Link href="/wallet">AC Wallet</Link>}
     <Link href="/market">Market</Link>
-    <span className="nav-muted">Territories <small>soon</small></span>
+    <Link href="/territories">Territories</Link>
    </nav>
    <div className="top-actions">
     {signedIn?<Link href="/account" className="account-link">My account{unreadCount>0?<span className="nav-notice">{unreadCount>9?"9+":unreadCount}</span>:""} ↗</Link>:<Link href="/login" className="account-link">Sign in</Link>}
