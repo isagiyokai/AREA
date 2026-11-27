@@ -13,7 +13,7 @@ type CaseRow={
  my_vote:boolean|null;my_witness_vote:boolean|null;
 };
 
-export default function CommunityCourt({cases,currentUserId}:{cases:CaseRow[];currentUserId:string}){
+export default function CommunityCourt({cases,currentUserId,returnFeeAc}:{cases:CaseRow[];currentUserId:string;returnFeeAc:number}){
  const router=useRouter();
  const [busy,setBusy]=useState<string|null>(null),[error,setError]=useState(""),[apologies,setApologies]=useState<Record<string,string>>({});
  async function act(id:string,fn:string,args:Record<string,unknown>){
@@ -59,7 +59,7 @@ export default function CommunityCourt({cases,currentUserId}:{cases:CaseRow[];cu
      </div>}
     {item.status==="upheld"&&!item.reinstated_at&&<div className="wolves-result"><strong>The community upheld the case.</strong><p>A 24-hour penance applies. A direct apology may create an earlier path back.</p></div>}
     {item.status==="upheld"&&item.apology_text&&<div className="wolves-apology"><strong>APOLOGY FROM THE CITIZEN</strong><p>{item.apology_text}</p>{item.apology_submitted_at&&<small>Submitted {date(item.apology_submitted_at)}</small>}
-      {isOffended&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"accept_community_apology",{p_case_id:item.id})}>Accept apology · reinstate for the configured fee</button>}
+      {isOffended&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"accept_community_apology",{p_case_id:item.id})}>Accept apology · pay {new Intl.NumberFormat("en-NG").format(returnFeeAc)} AC to reinstate</button>}
      </div>}
     {item.status==="upheld"&&!item.reinstated_at&&isTarget&&item.offended_user_id&&<ApologyComposer caseId={item.id} value={apologies[item.id]??""} onChange={value=>setApologies(v=>({...v,[item.id]:value}))} busy={busy===item.id} onSubmit={()=>void act(item.id,"request_community_apology",{p_case_id:item.id,p_apology:apologies[item.id]??""})}/>}
     {item.status==="upheld"&&!item.reinstated_at&&isTarget&&!item.offended_user_id&&<p className="notice">No directly affected citizen was identified in this case, so the apology-and-forgiveness return route is unavailable.</p>}
