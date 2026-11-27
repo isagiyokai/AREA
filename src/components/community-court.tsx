@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type CaseRow={
- id:string;target_user_id:string;reason:string;summary:string;severity:string;status:string;phase:"witnessing"|"judgment";vote_closes_at:string;penance_until:string|null;created_at:string;
+ id:string;target_user_id:string;reason:string;summary:string;severity:string;status:string;phase:"witnessing"|"judgment";vote_closes_at:string;penance_until:string|null;ac_penalty_requested:number;created_at:string;
  discussion_post_id:string|null;offended_user_id:string|null;apology_text:string|null;apology_submitted_at:string|null;apology_accepted_at:string|null;reinstated_at:string|null;
  target:{username:string;display_name:string;area_class:string|null;area_grade:string|null}|null;
  tally:{total_votes:number;uphold_votes:number;dismiss_votes:number};
@@ -13,7 +13,7 @@ type CaseRow={
  my_vote:boolean|null;my_witness_vote:boolean|null;
 };
 
-export default function CommunityCourt({cases,currentUserId,returnFeeAc,penanceFeeAc,acPerNgn}:{cases:CaseRow[];currentUserId:string;returnFeeAc:number;penanceFeeAc:number;acPerNgn:number}){
+export default function CommunityCourt({cases,currentUserId,returnFeeAc,acPerNgn}:{cases:CaseRow[];currentUserId:string;returnFeeAc:number;acPerNgn:number}){
  const router=useRouter();
  const [busy,setBusy]=useState<string|null>(null),[error,setError]=useState(""),[apologies,setApologies]=useState<Record<string,string>>({});
  async function act(id:string,fn:string,args:Record<string,unknown>){
