@@ -1,0 +1,11 @@
+"use client";
+import { useEffect,useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+type Item={id:string;name:string;slug:string;price_ac:number;active:boolean};
+export default function AdminMarketPrices(){
+ const [items,setItems]=useState<Item[]>([]),[prices,setPrices]=useState<Record<string,string>>({}),[busy,setBusy]=useState<string|null>(null),[saved,setSaved]=useState<string|null>(null),[error,setError]=useState("");
+ async function refresh(){const {data,error}=await createClient().from("area_market_items").select("id,name,slug,price_ac,active").order("price_ac");if(error)throw error;const rows=(data??[]) as Item[];setItems(rows);setPrices(Object.fromEntries(rows.map(item=>[item.id,String(item.price_ac)])));}
+ useEffect(()=>{void refresh().catch(e=>setError(e instanceof Error?e.message:"Could not load market prices."));},[]);
+ async function save(item:Item){setBusy(item.id);setError("");setSaved(null);try{const price=Number(prices[item.id]);if(!Number.isSafeInteger(price)||price<0)throw new Error("Enter a whole, non-negative AC price.");const {error}=await createClient().rpc("admin_set_market_item_price",{p_item_id:item.id,p_price_ac:price});if(error)throw error;setSaved(item.id);await refresh();}catch(e){setError(e instanceof Error?e.message:"Could not save price.");}finally{setBusy(null);}}
+ return <section className="admin-market-prices"><div><span className="mini-label">AREA MARKET / PRICING</span><h2>Set item prices</h2></div>{items.map(item=><div className="admin-market-price-row" key={item.id}><div><strong>{item.name}</strong><small>{item.slug} · {item.active?"Active":"Hidden"}</small></div><input inputMode="numeric" value={prices[item.id]??""} onChange={e=>setPrices(v=>({...v,[item.id]:e.target.value.replace(/[^0-9]/g,"")}))}/><span>AC</span><button disabled={busy===item.id} onClick={()=>void save(item)}>{busy===item.id?"Saving…":saved===item.id?"Saved ✓":"Save"}</button></div>)}{error&&<small className="error">{error}</small>}</section>;
+}
