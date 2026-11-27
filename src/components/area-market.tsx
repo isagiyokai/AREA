@@ -10,7 +10,8 @@ export default function AreaMarket({userId}:{userId:string|null}){
  const [items,setItems]=useState<Item[]>([]),[owned,setOwned]=useState<Owned[]>([]),[loading,setLoading]=useState(true),[acPerNgn,setAcPerNgn]=useState(0),[busy,setBusy]=useState<string|null>(null),[error,setError]=useState(""),[message,setMessage]=useState("");
  async function refresh(){const sb=createClient();const [{data:catalog,error:catalogError},{data:inventory},{data:rate}]=await Promise.all([
   sb.from("area_market_items").select("id,slug,name,description,category,price_ac").eq("active",true).order("price_ac",{ascending:true}),
-  userId?sb.from("citizen_inventory").select("item_id,equipped").eq("user_id",userId):Promise.resolve({data:[] as Owned[],error:null})
+  userId?sb.from("citizen_inventory").select("item_id,equipped").eq("user_id",userId):Promise.resolve({data:[] as Owned[],error:null}),
+  sb.from("area_economy_settings").select("setting_value").eq("setting_key","ac_per_ngn").maybeSingle()
  ]);if(catalogError)throw catalogError;setItems((catalog??[]) as Item[]);setOwned((inventory??[]) as Owned[]);setAcPerNgn(Number(rate?.setting_value)||0);setLoading(false);}
  useEffect(()=>{void refresh().catch(e=>{setError(e instanceof Error?e.message:"Market unavailable.");setLoading(false);});},[userId]);
  async function buy(item:Item){if(!userId){window.location.href="/login";return;}setBusy(item.id);setError("");setMessage("");try{const {data,error}=await createClient().rpc("purchase_market_item",{p_item_id:item.id});if(error)throw error;const result=data as {item_name:string;amount_ac:number};setMessage(`${result.item_name} added to your inventory for ${fmt(result.amount_ac)} AC.`);await refresh();}catch(e){setError(e instanceof Error?e.message:"Purchase could not be completed.");}finally{setBusy(null);}}
