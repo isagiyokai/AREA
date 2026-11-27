@@ -19,6 +19,6 @@ export default async function TerritoriesPage(){
  return <main className="shell territory-shell"><header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><Link href="/wallet">AC wallet</Link><Link href="/account">My account</Link></div></header>
  <section className="territory-masthead"><span className="eyebrow">AREA / TERRITORIES</span><h1>Every ground<br/>has its <em>Agbero.</em></h1><p>Stamp duty, territory obligations and the people who can set you free. One shared society; many corners of influence.</p></section>
  <div className="section-rule"><span>AGBERO TERRITORIES</span><span>ENTRY IS NOT AN EXIT</span></div>
- <TerritoriesBoard territories={territories} membership={membership} ownedTerritories={ownedRows??[]} ownedMembers={ownedMembers}/>
+ <TerritoriesBoard territories={territories} membership={membership} ownedTerritories={(ownedRows??[]).map(t=>({...t,owner:null}))} ownedMembers={ownedMembers}/>
  <footer className="site-footer"><span>AREA / TERRITORIES</span><span>Owner-controlled release</span><Link href="/">Back to the street ↗</Link></footer></main>;
 }
