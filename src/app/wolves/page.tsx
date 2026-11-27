@@ -7,7 +7,7 @@ export default async function WolvesPage(){
  const supabase=await createClient();if(!supabase)redirect("/login");
  const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login");
  const {data:rows}=await supabase.from("community_cases").select("id,target_user_id,reason,summary,severity,status,phase,vote_closes_at,created_at,discussion_post_id,offended_user_id,apology_text,apology_submitted_at,apology_accepted_at,reinstated_at,target:profiles!community_cases_target_user_id_fkey(username,display_name,area_class,area_grade)").order("created_at",{ascending:false}).limit(30);
- const ids=(rows??[]).map(row=>row.id);
+ const {data:feeRow}=await supabase.from("area_economy_settings").select("setting_value").eq("setting_key","community_forgiveness_return_fee_ac").maybeSingle();\n const returnFeeAc=Number(feeRow?.setting_value??500000);\n const ids=(rows??[]).map(row=>row.id);
  const [tallyResult,voteResult,witnessTallyResult,witnessVoteResult]=ids.length?await Promise.all([
   supabase.rpc("get_community_case_tallies",{p_case_ids:ids}),
   supabase.from("community_case_votes").select("case_id,uphold").eq("voter_id",user.id).in("case_id",ids),
@@ -26,6 +26,6 @@ export default async function WolvesPage(){
  return <main className="shell wolves-shell"><header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">The street ↗</Link><Link href="/account">My account</Link></div></header>
  <section className="wolves-masthead"><span className="eyebrow">AREA / COMMUNITY JUSTICE</span><h1>Thrown to<br/><em>the Wolves.</em></h1><p>Serious reports come before the community. Read the stated reason. Make your own judgement. One citizen, one vote.</p></section>
  <div className="section-rule"><span>THE COMMUNITY COURT</span><span>ACTIVE CITIZENS ONLY · 24-HOUR VOTE</span></div>
- <CommunityCourt cases={cases} currentUserId={user.id}/>
+ <CommunityCourt cases={cases} currentUserId={user.id} returnFeeAc={returnFeeAc}/>
  <footer className="site-footer"><span>AREA / COMMUNITY JUDGMENT</span><span>One vote per citizen</span><Link href="/">Back to the street ↗</Link></footer></main>;
 }
