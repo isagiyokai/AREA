@@ -13,7 +13,7 @@ type CaseRow={
  my_vote:boolean|null;my_witness_vote:boolean|null;
 };
 
-export default function CommunityCourt({cases,currentUserId,returnFeeAc,acPerNgn}:{cases:CaseRow[];currentUserId:string;returnFeeAc:number;acPerNgn:number}){
+export default function CommunityCourt({cases,currentUserId,returnFeeAc,penanceFeeAc,acPerNgn}:{cases:CaseRow[];currentUserId:string;returnFeeAc:number;penanceFeeAc:number;acPerNgn:number}){
  const router=useRouter();
  const [busy,setBusy]=useState<string|null>(null),[error,setError]=useState(""),[apologies,setApologies]=useState<Record<string,string>>({});
  async function act(id:string,fn:string,args:Record<string,unknown>){
@@ -51,7 +51,7 @@ export default function CommunityCourt({cases,currentUserId,returnFeeAc,acPerNgn
       {expired&&item.status==="voting"&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"resolve_community_witness_case",{p_case_id:item.id})}>Call the witnesses' result ↗</button>}
      </div>:<div className="wolves-stage-panel">
       <strong>STAGE TWO / THE WOLVES</strong>
-      <p>The hearing is authorized. Decide whether the conduct should be upheld. If upheld, the citizen serves a 24-hour penance unless a direct apology is accepted and the return fee is paid.</p>
+      <p>The hearing is authorized. Decide whether the conduct should be upheld. If upheld, the citizen serves a 24-hour penance and up to {new Intl.NumberFormat("en-NG").format(penanceFeeAc)} AC{acPerNgn>0?" (≈ ₦"+new Intl.NumberFormat("en-NG",{maximumFractionDigits:2}).format(penanceFeeAc/acPerNgn)+")":""} is collected from their available wallet. A direct apology may be accepted for early return at the stated fee.</p>
       <div className="wolves-tally"><span><b>{item.tally.uphold_votes}</b> Uphold</span><span><b>{item.tally.dismiss_votes}</b> Dismiss</span><span><b>{item.tally.total_votes}</b> Votes</span></div>
       {!expired&&item.status==="voting"&&<div className="wolves-vote-actions">
        <button className="btn primary" disabled={busy===item.id||item.my_vote===true} onClick={()=>void act(item.id,"vote_community_case",{p_case_id:item.id,p_uphold:true})}>{item.my_vote===true?"You voted uphold":"Uphold the case"}</button>
