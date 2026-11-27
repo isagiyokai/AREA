@@ -19,6 +19,8 @@ export default async function Home() {
   signedIn=!!user;
   currentUserId=user?.id??null;
   if(user){
+   const {data:entryProfile}=await supabase.from("profiles").select("area_entry_tier").eq("id",user.id).maybeSingle();
+   if(!entryProfile?.area_entry_tier)redirect("/entry");
    const [{data:activeTerritory},{count:activeTerritoryCount}]=await Promise.all([
     supabase.from("agbero_memberships").select("id").eq("citizen_id",user.id).eq("status","inside").maybeSingle(),
     supabase.from("agbero_territories").select("id",{count:"exact",head:true}).eq("active",true)
