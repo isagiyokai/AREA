@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type CaseRow={
- id:string;reason:string;summary:string;severity:string;status:string;phase:"witnessing"|"judgment";vote_closes_at:string;created_at:string;
+ id:string;target_user_id:string;reason:string;summary:string;severity:string;status:string;phase:"witnessing"|"judgment";vote_closes_at:string;created_at:string;
  discussion_post_id:string|null;offended_user_id:string|null;apology_text:string|null;apology_submitted_at:string|null;apology_accepted_at:string|null;reinstated_at:string|null;
  target:{username:string;display_name:string;area_class:string|null;area_grade:string|null}|null;
  tally:{total_votes:number;uphold_votes:number;dismiss_votes:number};
@@ -62,7 +62,7 @@ export default function CommunityCourt({cases,currentUserId}:{cases:CaseRow[];cu
       {currentUserId===item.offended_user_id&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"accept_community_apology",{p_case_id:item.id})}>Accept apology · reinstate for the configured fee</button>}
      </div>}
     {item.status==="upheld"&&!item.reinstated_at&&currentUserId===item.target?.username&&null}
-    {item.status==="upheld"&&!item.reinstated_at&&item.offended_user_id&&<ApologyComposer caseId={item.id} currentUserId={currentUserId} targetUsername={target?.username??""} value={apologies[item.id]??""} onChange={value=>setApologies(v=>({...v,[item.id]:value}))} busy={busy===item.id} onSubmit={()=>void act(item.id,"request_community_apology",{p_case_id:item.id,p_apology:apologies[item.id]??""})}/>}
+    {item.status==="upheld"&&!item.reinstated_at&&currentUserId===item.target_user_id&&item.offended_user_id&&<ApologyComposer caseId={item.id} value={apologies[item.id]??""} onChange={value=>setApologies(v=>({...v,[item.id]:value}))} busy={busy===item.id} onSubmit={()=>void act(item.id,"request_community_apology",{p_case_id:item.id,p_apology:apologies[item.id]??""})}/>}
     {item.reinstated_at&&<p className="wolves-result">Apology accepted. The citizen paid the return fee and has been reinstated. <small>{date(item.reinstated_at)}</small></p>}
     {item.status==="dismissed"&&<p className="wolves-result">The community did not uphold the case. No penance applies.</p>}
     {item.status==="insufficient_votes"&&<p className="wolves-result">Not enough eligible votes. No penalty applies.</p>}
