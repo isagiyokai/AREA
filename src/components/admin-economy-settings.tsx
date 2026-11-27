@@ -8,11 +8,12 @@ const fields=[
  {key:"agbero_default_stamp_duty_ac",label:"Default Agbero stamp duty",suffix:"AC"},
  {key:"agbero_area_share_percent",label:"AREA share of Agbero duty",suffix:"%"},
  {key:"community_penance_area_share_percent",label:"AREA share of community penance",suffix:"%"},
- {key:"community_forgiveness_return_fee_ac",label:"Forgiveness / return fee",suffix:"AC"}
+ {key:"community_penance_fee_ac",label:"Standard Wolves penance",suffix:"AC"},
+ {key:"community_forgiveness_return_fee_ac",label:"Forgiveness / early return fee",suffix:"AC"}
 ] as const;
 type Key=typeof fields[number]["key"];
 export default function AdminEconomySettings(){
- const [values,setValues]=useState<Record<Key,string>>({gbas_gbos_level_2_cost_ac:"0",gbas_gbos_level_3_cost_ac:"0",ac_per_ngn:"0",agbero_default_stamp_duty_ac:"0",agbero_area_share_percent:"30",community_penance_area_share_percent:"30",community_forgiveness_return_fee_ac:"500000"});
+ const [values,setValues]=useState<Record<Key,string>>({gbas_gbos_level_2_cost_ac:"0",gbas_gbos_level_3_cost_ac:"0",ac_per_ngn:"0",agbero_default_stamp_duty_ac:"0",agbero_area_share_percent:"30",community_penance_area_share_percent:"30",community_penance_fee_ac:"1000",community_forgiveness_return_fee_ac:"500000"});
  const [busy,setBusy]=useState<Key|null>(null),[saved,setSaved]=useState<Key|null>(null),[error,setError]=useState("");
  useEffect(()=>{let live=true;void createClient().from("area_economy_settings").select("setting_key,setting_value").then(({data})=>{if(!live)return;const next:Record<Key,string>={gbas_gbos_level_2_cost_ac:"0",gbas_gbos_level_3_cost_ac:"0",ac_per_ngn:"0",agbero_default_stamp_duty_ac:"0",agbero_area_share_percent:"30",community_penance_area_share_percent:"30",community_forgiveness_return_fee_ac:"500000"};for(const row of data??[]){if(row.setting_key in next)next[row.setting_key as Key]=String(row.setting_value);}setValues(next);});return()=>{live=false;};},[]);
  async function save(key:Key){setBusy(key);setError("");setSaved(null);try{const value=Number(values[key]);if(!Number.isSafeInteger(value)||value<0)throw new Error("Enter a whole, non-negative number.");const {error}=await createClient().rpc("admin_update_area_economy_setting",{p_key:key,p_value:value});if(error)throw error;setSaved(key);}catch(e){setError(e instanceof Error?e.message:"Could not save this setting.");}finally{setBusy(null);}}
