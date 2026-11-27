@@ -469,3 +469,6 @@ button{color:inherit}
 .wolves-apology-compose textarea{width:100%;padding:10px;border:1px solid var(--line);background:#fff;font:13px/1.5 Georgia,serif;resize:vertical}
 .report-offended-choice{display:flex;align-items:center;gap:8px;font-size:11px;color:#625d55;padding:4px 0}
 .report-offended-choice input{width:15px;height:15px}
+
+.market-item-buy .market-naira-reference{display:block;margin-top:4px;font:9px 'Courier New',monospace;color:var(--muted)}
+.economy-naira-reference{display:block;margin-top:6px;font:9px 'Courier New',monospace;color:var(--muted)}
