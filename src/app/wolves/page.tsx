@@ -7,7 +7,9 @@ export default async function WolvesPage(){
  const supabase=await createClient();if(!supabase)redirect("/login");
  const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login");
  const {data:rows}=await supabase.from("community_cases").select("id,target_user_id,reason,summary,severity,status,phase,vote_closes_at,created_at,discussion_post_id,offended_user_id,apology_text,apology_submitted_at,apology_accepted_at,reinstated_at,target:profiles!community_cases_target_user_id_fkey(username,display_name,area_class,area_grade)").order("created_at",{ascending:false}).limit(30);
- const {data:feeRow}=await supabase.from("area_economy_settings").select("setting_value").eq("setting_key","community_forgiveness_return_fee_ac").maybeSingle();\n const returnFeeAc=Number(feeRow?.setting_value??500000);\n const ids=(rows??[]).map(row=>row.id);
+ const {data:feeRow}=await supabase.from("area_economy_settings").select("setting_value").eq("setting_key","community_forgiveness_return_fee_ac").maybeSingle();
+ const returnFeeAc=Number(feeRow?.setting_value??500000);
+ const ids=(rows??[]).map(row=>row.id);
  const [tallyResult,voteResult,witnessTallyResult,witnessVoteResult]=ids.length?await Promise.all([
   supabase.rpc("get_community_case_tallies",{p_case_ids:ids}),
   supabase.from("community_case_votes").select("case_id,uphold").eq("voter_id",user.id).in("case_id",ids),
