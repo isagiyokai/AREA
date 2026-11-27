@@ -9,7 +9,7 @@ export default async function WolvesPage(){
  const {data:rows}=await supabase.from("community_cases").select("id,reason,summary,status,vote_closes_at,created_at,target:profiles!community_cases_target_user_id_fkey(username,display_name)").order("created_at",{ascending:false}).limit(30);
  const ids=(rows??[]).map(row=>row.id);
  const [{data:tallies},{data:myVotes}]=ids.length?await Promise.all([
-  supabase.from("community_case_tallies").select("case_id,total_votes,uphold_votes,dismiss_votes").in("case_id",ids),
+  supabase.rpc("get_community_case_tallies",{p_case_ids:ids}),
   supabase.from("community_case_votes").select("case_id,uphold").eq("voter_id",user.id).in("case_id",ids)
  ]):[{data:[]},{data:[]}];
  const tallyMap=new Map((tallies??[]).map(t=>[t.case_id,t]));
