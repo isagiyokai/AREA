@@ -7,7 +7,8 @@ const fields=[
  {key:"ac_per_ngn",label:"AC per ₦1",suffix:"AC"},
  {key:"agbero_default_stamp_duty_ac",label:"Default Agbero stamp duty",suffix:"AC"},
  {key:"agbero_area_share_percent",label:"AREA share of Agbero duty",suffix:"%"},
- {key:"community_penance_area_share_percent",label:"AREA share of community penance",suffix:"%"},\n {key:"community_forgiveness_return_fee_ac",label:"Forgiveness / return fee",suffix:"AC"}
+ {key:"community_penance_area_share_percent",label:"AREA share of community penance",suffix:"%"},
+ {key:"community_forgiveness_return_fee_ac",label:"Forgiveness / return fee",suffix:"AC"}
 ] as const;
 type Key=typeof fields[number]["key"];
 export default function AdminEconomySettings(){
