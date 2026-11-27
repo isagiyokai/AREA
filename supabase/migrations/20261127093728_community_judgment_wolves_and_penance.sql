@@ -15,11 +15,11 @@ create table if not exists public.community_case_votes(case_id uuid not null ref
 create table if not exists public.citizen_penances(id uuid primary key default gen_random_uuid(),case_id uuid not null unique references public.community_cases(id) on delete restrict,user_id uuid not null references auth.users(id) on delete cascade,starts_at timestamptz not null default now(),ends_at timestamptz not null,served_at timestamptz,created_at timestamptz not null default now(),check(ends_at>starts_at));
 create index if not exists citizen_penances_user_ends_idx on public.citizen_penances(user_id,ends_at desc);
 alter table public.community_cases enable row level security;alter table public.community_case_votes enable row level security;alter table public.citizen_penances enable row level security;
-create policy "Citizens read public community cases" on public.community_cases for select to anon,authenticated using(true);
+create policy "Signed-in citizens read community cases" on public.community_cases for select to authenticated using(true);
 create policy "Citizens read their own community votes" on public.community_case_votes for select to authenticated using(voter_id=(select auth.uid()));
 create policy "Citizens read their own penances" on public.citizen_penances for select to authenticated using(user_id=(select auth.uid()));
 grant select on public.community_cases,public.community_case_votes,public.citizen_penances to authenticated;
-create or replace view public.community_case_tallies with(security_invoker=false) as select c.id case_id,count(v.voter_id)::integer total_votes,count(v.voter_id) filter(where v.uphold)::integer uphold_votes,count(v.voter_id) filter(where not v.uphold)::integer dismiss_votes from public.community_cases c left join public.community_case_votes v on v.case_id=c.id group by c.id;
+create or replace view public.community_case_tallies with(security_invoker=true) as select c.id case_id,count(v.voter_id)::integer total_votes,count(v.voter_id) filter(where v.uphold)::integer uphold_votes,count(v.voter_id) filter(where not v.uphold)::integer dismiss_votes from public.community_cases c left join public.community_case_votes v on v.case_id=c.id group by c.id;
 grant select on public.community_case_tallies to authenticated;
 create or replace view public.citizen_reputation with(security_invoker=true) as
 select p.id user_id,greatest(0,100-(count(c.id) filter(where c.status='upheld')::integer*10))::integer reputation_score,count(c.id) filter(where c.status='upheld')::integer upheld_cases,count(c.id) filter(where c.status='dismissed')::integer dismissed_cases,
