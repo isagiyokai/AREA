@@ -52,7 +52,7 @@ export default async function Home() {
     <Link href="/explore">Explore</Link>
     <Link href="/leaderboard">Leaderboard</Link><Link href="/wolves">Community court</Link>
     {signedIn&&<Link href="/bookmarks">Saved</Link>}{signedIn&&<Link href="/messages">Messages</Link>}{signedIn&&<Link href="/wallet">AC Wallet</Link>}
-    <span className="nav-muted">Market <small>soon</small></span>
+    <Link href="/market">Market</Link>
     <span className="nav-muted">Territories <small>soon</small></span>
    </nav>
    <div className="top-actions">
@@ -82,7 +82,7 @@ export default async function Home() {
      <Link className="rail-link" href="/explore"><span>03</span> Explore</Link>
      <Link className="rail-link" href="/leaderboard"><span>04</span> Street leaderboard</Link><Link className="rail-link" href="/wolves"><span>07</span> Community court</Link>
      {signedIn&&<Link className="rail-link" href="/bookmarks"><span>04</span> Saved posts</Link>}{signedIn&&<Link className="rail-link" href="/messages"><span>05</span> Private messages</Link>}{signedIn&&<Link className="rail-link" href="/wallet"><span>06</span> AC Wallet</Link>}
-     <div className="rail-link rail-soon"><span>03</span> AREA Market <small>SOON</small></div>
+     <Link className="rail-link" href="/market"><span>08</span> AREA Market</Link>
      <div className="rail-link rail-soon"><span>04</span> Territories <small>SOON</small></div>
      <div className="rail-link rail-soon"><span>05</span> Society <small>SOON</small></div>
     </div>
