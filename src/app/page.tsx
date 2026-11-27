@@ -50,7 +50,7 @@ export default async function Home() {
     <a className="nav-current" href="#feed">The street</a>
     <Link href="/gbas-gbos">Gbas Gbos</Link>
     <Link href="/explore">Explore</Link>
-    <Link href="/leaderboard">Leaderboard</Link>
+    <Link href="/leaderboard">Leaderboard</Link><Link href="/wolves">Community court</Link>
     {signedIn&&<Link href="/bookmarks">Saved</Link>}{signedIn&&<Link href="/messages">Messages</Link>}{signedIn&&<Link href="/wallet">AC Wallet</Link>}
     <span className="nav-muted">Market <small>soon</small></span>
     <span className="nav-muted">Territories <small>soon</small></span>
@@ -80,7 +80,7 @@ export default async function Home() {
      <a className="rail-link rail-active" href="#feed"><span>01</span> The street</a>
      <Link className="rail-link" href="/gbas-gbos"><span>02</span> Gbas Gbos</Link>
      <Link className="rail-link" href="/explore"><span>03</span> Explore</Link>
-     <Link className="rail-link" href="/leaderboard"><span>04</span> Street leaderboard</Link>
+     <Link className="rail-link" href="/leaderboard"><span>04</span> Street leaderboard</Link><Link className="rail-link" href="/wolves"><span>07</span> Community court</Link>
      {signedIn&&<Link className="rail-link" href="/bookmarks"><span>04</span> Saved posts</Link>}{signedIn&&<Link className="rail-link" href="/messages"><span>05</span> Private messages</Link>}{signedIn&&<Link className="rail-link" href="/wallet"><span>06</span> AC Wallet</Link>}
      <div className="rail-link rail-soon"><span>03</span> AREA Market <small>SOON</small></div>
      <div className="rail-link rail-soon"><span>04</span> Territories <small>SOON</small></div>
