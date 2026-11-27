@@ -21,7 +21,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
  const supabase=await createClient();
  if(!supabase)notFound();
  const {data:profile}=await supabase.from("profiles")
-  .select("id,username,display_name,bio,area_class,created_at")
+  .select("id,username,display_name,bio,area_class,area_grade,created_at")
   .eq("username",username.toLowerCase())
   .maybeSingle();
  if(!profile)notFound();
