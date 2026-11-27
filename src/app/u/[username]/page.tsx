@@ -10,7 +10,7 @@ type Profile={
  username:string;
  display_name:string;
  bio:string|null;
- area_class:string|null;
+ area_class:string|null;area_grade?:string|null;
  created_at:string;
 };
 
