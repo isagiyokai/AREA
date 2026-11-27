@@ -43,7 +43,8 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
  ]);
  const citizen=profile as Profile;
  const cosmeticIds=(cosmetics??[]).map(item=>item.item_id);
- const {data:equippedCosmetics}=cosmeticIds.length?await supabase.from("area_market_items").select("name,slug,category").in("id",cosmeticIds):{data:[] as {name:string;slug:string;category:string}[]};
+ const {data:cosmeticItems}=cosmeticIds.length?await supabase.from("area_market_items").select("name,slug,category").in("id",cosmeticIds):{data:[] as {name:string;slug:string;category:string}[]};
+ const equippedCosmetics=cosmeticItems??[];
  return <main className="shell citizen-shell">
   <header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><div className="account-top-links"><Link href="/">← The street</Link><Link href="/account">My account</Link><Link href="/market">Market</Link></div></header>
   <section className={"citizen-cover "+equippedCosmetics.map(item=>"cosmetic-"+item.slug).join(" ")}>
