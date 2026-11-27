@@ -27,7 +27,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
  if(!profile)notFound();
  const {data:{user}}=await supabase.auth.getUser();
  const {data:isAdmin}=await supabase.rpc("is_area_admin_profile",{p_user_id:profile.id});
- const [{data:posts,count},{count:followers},{count:following},{data:followRow},{data:standing},{data:achievements}]=await Promise.all([
+ const [{data:posts,count},{count:followers},{count:following},{data:followRow},{data:standing},{data:reputation},{data:achievements}]=await Promise.all([
   supabase.from("posts")
   .select("id,content,created_at",{count:"exact"})
   .eq("author_id",profile.id)
@@ -37,6 +37,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
   supabase.from("follows").select("followed_id",{count:"exact",head:true}).eq("follower_id",profile.id),
   user&&user.id!==profile.id?supabase.from("follows").select("follower_id").eq("follower_id",user.id).eq("followed_id",profile.id).maybeSingle():Promise.resolve({data:null,error:null}),
   supabase.from("citizen_standing").select("standing_points,standing_title,standing_rank,posts,replies,replies_received,followers,yard_points,yard_title,yard_rank,callouts_started,callouts_received,yard_replies").eq("user_id",profile.id).maybeSingle(),
+  supabase.from("citizen_reputation").select("reputation_score,upheld_cases,dismissed_cases,reputation_title").eq("user_id",profile.id).maybeSingle(),
   supabase.from("citizen_achievements").select("achievement_key,title,description,category,earned_at").eq("user_id",profile.id).order("earned_at",{ascending:true})
  ]);
  const citizen=profile as Profile;
@@ -51,6 +52,7 @@ export default async function CitizenPage({params}:{params:Promise<{username:str
    <p className="citizen-bio">{citizen.bio||"No bio yet. Let the conversations do the talking."}</p>
    <div className="citizen-follow-row"><div className="citizen-meta"><span>IN AREA SINCE {new Date(citizen.created_at).toLocaleDateString("en-NG",{month:"short",year:"numeric"}).toUpperCase()}</span><span>{count??0} POSTS</span><span>{following??0} FOLLOWING</span><span>RANK #{standing?.standing_rank??"—"}</span></div><div className="citizen-actions">{user&&user.id!==citizen.id&&<Link className="btn primary" href={"/messages/"+encodeURIComponent(citizen.username)}>Message ↗</Link>}<FollowButton profileId={citizen.id} currentUserId={user?.id??null} initialFollowing={!!followRow} initialFollowers={followers??0}/>{user&&user.id!==citizen.id&&<ReportCitizen profileId={citizen.id} currentUserId={user.id}/>} {user&&user.id!==citizen.id&&<BlockCitizen profileId={citizen.id} currentUserId={user.id}/>}</div></div>
   </section>
+  <section className="citizen-reputation"><div><span className="mini-label">COMMUNITY RECORD</span><strong>{reputation?.reputation_title??"Unjudged"}</strong><p>{reputation?.reputation_score??100} reputation · {reputation?.upheld_cases??0} upheld cases · {reputation?.dismissed_cases??0} dismissed</p></div><Link href="/wolves">Community court ↗</Link><small>Reputation reflects upheld community cases only. Reports alone do not lower a citizen’s standing.</small></section>
   <section className="citizen-standing"><div><span className="mini-label">STREET STANDING</span><strong>{standing?.standing_title??"New voice"}</strong><p>{standing?.standing_points??0} participation points · #{standing?.standing_rank??"—"} on the street</p></div><div className="standing-breakdown"><span>{standing?.replies??0} replies made</span><span>{standing?.replies_received??0} replies received</span><span>{standing?.followers??0} followers</span></div><small>Participation measure, not a judgement of anyone’s worth or the quality of their opinions.</small><div className="yard-standing"><span className="mini-label">GBAS GBOS / YARD STANDING</span><strong>{standing?.yard_title??"New to the yard"}</strong><p>{standing?.yard_points??0} yard points · #{standing?.yard_rank??"—"} in Gbas Gbos</p><small>{standing?.callouts_started??0} callouts started · {standing?.callouts_received??0} received · {standing?.yard_replies??0} replies in the yard</small></div></section>
   <section className="citizen-achievements">
    <div className="citizen-activity-head"><div><span className="mini-label">EARNED RECOGNITION</span><h2>Marks on the street</h2></div><span className="citizen-post-count">{achievements?.length??0} EARNED</span></div>
