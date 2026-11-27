@@ -413,3 +413,9 @@ button{color:inherit}
 @media(max-width:520px){.citizen-standing{align-items:flex-start}.leaderboard-row{grid-template-columns:30px minmax(0,1fr) auto;padding:12px 10px}.leaderboard-rank{font-size:14px}.leaderboard-score strong{font-size:17px}}
 
 .yard-standing{width:100%;display:grid;gap:5px;padding-top:12px;border-top:1px solid var(--line)}.yard-standing strong{font:700 17px Georgia,serif}.yard-standing p{margin:0;color:var(--muted);font:10px 'Courier New',monospace}.yard-standing small{font:9px/1.5 'Courier New',monospace;color:var(--muted)}
+
+
+/* Earned citizen achievements */
+.citizen-achievements{max-width:900px;margin:26px 0 8px}.citizen-achievements .citizen-activity-head{margin-bottom:12px}.achievement-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.achievement-card{min-width:0;padding:14px;background:var(--paper);border:1px solid var(--line);position:relative}.achievement-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green)}.achievement-card>span{display:block;font:9px 'Courier New',monospace;letter-spacing:1px;color:var(--accent)}.achievement-card strong{display:block;margin:9px 0 6px;font:700 16px Georgia,serif}.achievement-card p{min-height:34px;margin:0 0 10px;color:#625d55;font:11px/1.5 Georgia,serif}.achievement-card small{font:9px 'Courier New',monospace;color:var(--muted)}
+@media(max-width:700px){.achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.achievement-grid{grid-template-columns:1fr}.achievement-card p{min-height:0}}
