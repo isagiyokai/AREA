@@ -42,9 +42,10 @@ export default function CommunityCourt({cases,currentUserId,returnFeeAc}:{cases:
       <strong>STAGE ONE / THE WITNESSES</strong>
       <p>Should this conversation proceed to The Wolves for a full community judgment? Observer reports carry double weight when establishing a hearing. Each eligible citizen still gets one vote.</p>
       <div className="wolves-tally"><span><b>{item.witness_tally.support_votes}</b> Proceed</span><span><b>{item.witness_tally.oppose_votes}</b> Close</span><span><b>{item.witness_tally.report_count}</b> Reports · {item.witness_tally.report_weight} weight</span></div>
+      {item.witness_tally.report_count<2||item.witness_tally.report_weight<3?<p className="notice">Waiting for enough independent reports to open the vote.</p>:null}
       {!expired&&item.status==="voting"&&<div className="wolves-vote-actions">
-       <button className="btn primary" disabled={busy===item.id||item.my_witness_vote===true} onClick={()=>void act(item.id,"vote_community_witness_case",{p_case_id:item.id,p_supports_hearing:true})}>{item.my_witness_vote===true?"You voted proceed":"Send to The Wolves"}</button>
-       <button className="btn" disabled={busy===item.id||item.my_witness_vote===false} onClick={()=>void act(item.id,"vote_community_witness_case",{p_case_id:item.id,p_supports_hearing:false})}>{item.my_witness_vote===false?"You voted close":"Close the matter"}</button>
+       <button className="btn primary" disabled={busy===item.id||item.my_witness_vote===true||item.witness_tally.report_count<2||item.witness_tally.report_weight<3} onClick={()=>void act(item.id,"vote_community_witness_case",{p_case_id:item.id,p_supports_hearing:true})}>{item.my_witness_vote===true?"You voted proceed":"Send to The Wolves"}</button>
+       <button className="btn" disabled={busy===item.id||item.my_witness_vote===false||item.witness_tally.report_count<2||item.witness_tally.report_weight<3} onClick={()=>void act(item.id,"vote_community_witness_case",{p_case_id:item.id,p_supports_hearing:false})}>{item.my_witness_vote===false?"You voted close":"Close the matter"}</button>
       </div>}
       {expired&&item.status==="voting"&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"resolve_community_witness_case",{p_case_id:item.id})}>Call the witnesses' result ↗</button>}
      </div>:<div className="wolves-stage-panel">
