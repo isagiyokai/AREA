@@ -51,7 +51,7 @@ export default async function Home() {
     <Link href="/gbas-gbos">Gbas Gbos</Link>
     <Link href="/explore">Explore</Link>
     <Link href="/leaderboard">Leaderboard</Link>
-    {signedIn&&<Link href="/bookmarks">Saved</Link>}{signedIn&&<Link href="/messages">Messages</Link>}
+    {signedIn&&<Link href="/bookmarks">Saved</Link>}{signedIn&&<Link href="/messages">Messages</Link>}{signedIn&&<Link href="/wallet">AC Wallet</Link>}
     <span className="nav-muted">Market <small>soon</small></span>
     <span className="nav-muted">Territories <small>soon</small></span>
    </nav>
@@ -81,7 +81,7 @@ export default async function Home() {
      <Link className="rail-link" href="/gbas-gbos"><span>02</span> Gbas Gbos</Link>
      <Link className="rail-link" href="/explore"><span>03</span> Explore</Link>
      <Link className="rail-link" href="/leaderboard"><span>04</span> Street leaderboard</Link>
-     {signedIn&&<Link className="rail-link" href="/bookmarks"><span>04</span> Saved posts</Link>}{signedIn&&<Link className="rail-link" href="/messages"><span>05</span> Private messages</Link>}
+     {signedIn&&<Link className="rail-link" href="/bookmarks"><span>04</span> Saved posts</Link>}{signedIn&&<Link className="rail-link" href="/messages"><span>05</span> Private messages</Link>}{signedIn&&<Link className="rail-link" href="/wallet"><span>06</span> AC Wallet</Link>}
      <div className="rail-link rail-soon"><span>03</span> AREA Market <small>SOON</small></div>
      <div className="rail-link rail-soon"><span>04</span> Territories <small>SOON</small></div>
      <div className="rail-link rail-soon"><span>05</span> Society <small>SOON</small></div>
