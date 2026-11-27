@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type CaseRow={
- id:string;target_user_id:string;reason:string;summary:string;severity:string;status:string;phase:"witnessing"|"judgment";vote_closes_at:string;created_at:string;
+ id:string;target_user_id:string;reason:string;summary:string;severity:string;status:string;phase:"witnessing"|"judgment";vote_closes_at:string;penance_until:string|null;created_at:string;
  discussion_post_id:string|null;offended_user_id:string|null;apology_text:string|null;apology_submitted_at:string|null;apology_accepted_at:string|null;reinstated_at:string|null;
  target:{username:string;display_name:string;area_class:string|null;area_grade:string|null}|null;
  tally:{total_votes:number;uphold_votes:number;dismiss_votes:number};
@@ -31,6 +31,7 @@ export default function CommunityCourt({cases,currentUserId,returnFeeAc}:{cases:
    const target=item.target;
    const isTarget=currentUserId===item.target_user_id;
    const isOffended=currentUserId===item.offended_user_id;
+   const penanceActive=Boolean(item.penance_until&&new Date(item.penance_until).getTime()>Date.now());
    return <article className="wolves-case" id={"case-"+item.id} key={item.id}>
     <div className="wolves-case-top"><span className="mini-label">{item.severity.toUpperCase()} SEVERITY / {item.id.slice(0,8).toUpperCase()}</span><b className={"wolves-status "+item.status}>{witnessing?"WITNESS REVIEW":item.status.replaceAll("_"," ").toUpperCase()}</b></div>
     <h2>{target?.display_name||"AREA citizen"} <small>@{target?.username||"unknown"}</small></h2>
@@ -58,12 +59,12 @@ export default function CommunityCourt({cases,currentUserId,returnFeeAc}:{cases:
       </div>}
       {expired&&item.status==="voting"&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"resolve_community_case",{p_case_id:item.id})}>Call the Wolves' verdict ↗</button>}
      </div>}
-    {item.status==="upheld"&&!item.reinstated_at&&<div className="wolves-result"><strong>The community upheld the case.</strong><p>A 24-hour penance applies. A direct apology may create an earlier path back.</p></div>}
+    {item.status==="upheld"&&!item.reinstated_at&&<div className="wolves-result"><strong>The community upheld the case.</strong><p>{penanceActive?`Penance ends ${date(item.penance_until!)}. A direct apology accepted by the affected citizen can create an earlier path back.`:"The 24-hour penance has ended. The citizen has earned their return."}</p></div>}
     {item.status==="upheld"&&item.apology_text&&<div className="wolves-apology"><strong>APOLOGY FROM THE CITIZEN</strong><p>{item.apology_text}</p>{item.apology_submitted_at&&<small>Submitted {date(item.apology_submitted_at)}</small>}
-      {isOffended&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"accept_community_apology",{p_case_id:item.id})}>Accept apology · pay {new Intl.NumberFormat("en-NG").format(returnFeeAc)} AC to reinstate</button>}
+      {isOffended&&penanceActive&&<button className="btn primary" disabled={busy===item.id} onClick={()=>void act(item.id,"accept_community_apology",{p_case_id:item.id})}>Accept apology · pay {new Intl.NumberFormat("en-NG").format(returnFeeAc)} AC to reinstate</button>}
      </div>}
-    {item.status==="upheld"&&!item.reinstated_at&&isTarget&&item.offended_user_id&&<ApologyComposer caseId={item.id} value={apologies[item.id]??""} onChange={value=>setApologies(v=>({...v,[item.id]:value}))} busy={busy===item.id} onSubmit={()=>void act(item.id,"request_community_apology",{p_case_id:item.id,p_apology:apologies[item.id]??""})}/>}
-    {item.status==="upheld"&&!item.reinstated_at&&isTarget&&!item.offended_user_id&&<p className="notice">No directly affected citizen was identified in this case, so the apology-and-forgiveness return route is unavailable.</p>}
+    {item.status==="upheld"&&!item.reinstated_at&&penanceActive&&isTarget&&item.offended_user_id&&<ApologyComposer caseId={item.id} value={apologies[item.id]??""} onChange={value=>setApologies(v=>({...v,[item.id]:value}))} busy={busy===item.id} onSubmit={()=>void act(item.id,"request_community_apology",{p_case_id:item.id,p_apology:apologies[item.id]??""})}/>}
+    {item.status==="upheld"&&!item.reinstated_at&&penanceActive&&isTarget&&!item.offended_user_id&&<p className="notice">No directly affected citizen was identified in this case, so the apology-and-forgiveness return route is unavailable.</p>}
     {item.reinstated_at&&<p className="wolves-result">Apology accepted. The citizen paid the return fee and has been reinstated. <small>{date(item.reinstated_at)}</small></p>}
     {item.status==="dismissed"&&<p className="wolves-result">The community did not uphold the case. No penance applies.</p>}
     {item.status==="insufficient_votes"&&<p className="wolves-result">Not enough eligible votes. No penalty applies.</p>}
