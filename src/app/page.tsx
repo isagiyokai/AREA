@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Feed from "@/components/feed";
 
@@ -17,6 +18,13 @@ export default async function Home() {
   const {data:{user}}=await supabase.auth.getUser();
   signedIn=!!user;
   currentUserId=user?.id??null;
+  if(user){
+   const [{data:activeTerritory},{count:activeTerritoryCount}]=await Promise.all([
+    supabase.from("agbero_memberships").select("id").eq("citizen_id",user.id).eq("status","inside").maybeSingle(),
+    supabase.from("agbero_territories").select("id",{count:"exact",head:true}).eq("active",true)
+   ]);
+   if(!activeTerritory&&(activeTerritoryCount??0)>0)redirect("/territories");
+  }
   if(user){const {data:blocks}=await supabase.from("user_blocks").select("blocked_user_id").eq("user_id",user.id);blockedUserIds=(blocks??[]).map(row=>row.blocked_user_id);}
   const blockedSet=new Set(blockedUserIds);
   const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
