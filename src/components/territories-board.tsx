@@ -9,7 +9,7 @@ const fmt=(n:number)=>new Intl.NumberFormat("en-NG").format(n);
 export default function TerritoriesBoard({territories,membership,ownedTerritories,ownedMembers}:{territories:Territory[];membership:Membership|null;ownedTerritories:Territory[];ownedMembers:OwnedMember[]}){
  const router=useRouter();const [busy,setBusy]=useState<string|null>(null),[error,setError]=useState(""),[message,setMessage]=useState("");
  const [duties,setDuties]=useState<Record<string,string>>({}),[obligations,setObligations]=useState<Record<string,string>>({});
- async function act(id:string,fn:()=>Promise<{error:any}>){setBusy(id);setError("");setMessage("");try{const result=await fn();if(result.error)throw result.error;setMessage("Updated.");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Action could not be completed.");}finally{setBusy(null);}}
+ async function act(id:string,fn:()=>PromiseLike<{error:any}>){setBusy(id);setError("");setMessage("");try{const result=await fn();if(result.error)throw result.error;setMessage("Updated.");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Action could not be completed.");}finally{setBusy(null);}}
  function enter(id:string){void act(id,()=>createClient().rpc("agbero_enter_territory",{p_territory_id:id}));}
  function pay(id:string){void act(id,()=>createClient().rpc("pay_agbero_duty",{p_membership_id:id}));}
  function saveDuty(id:string){void act("duty-"+id,()=>createClient().rpc("owner_set_agbero_stamp_duty",{p_territory_id:id,p_stamp_duty_ac:Number(duties[id]??"0")}));}
