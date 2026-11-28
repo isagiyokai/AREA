@@ -160,7 +160,7 @@ Use Paystack test keys first. Do not paste secret keys into chat, GitHub, source
 - Legal classification of transferable AC has not been obtained.
 - Automated customer refunds, chargebacks and dispute workflows are not implemented.
 - Bank settlement reconciliation and tax accounting are not complete.
-- The newest Vercel deployment is queued; the latest code is not yet confirmed live.
+- The latest payment-system source commit has a successful production build. Documentation-only updates may still trigger a follow-up deployment.
 - No AREA payment orders exist yet, so all payer metrics are zero and no pricing has been validated by actual AREA customers.
 
 ## 9. Validation plan after approval
