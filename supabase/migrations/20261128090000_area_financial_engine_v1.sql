@@ -14,8 +14,8 @@ create policy "Citizens can read active AC packages" on public.area_ac_packages 
 grant select on public.area_ac_packages to authenticated;
 insert into public.area_ac_packages(package_key,name,amount_ngn,base_ac,bonus_ac,sort_order) values
  ('pocket','Pocket',100,5000,0,1),('small','Small',200,10000,0,2),
- ('street','Street',500,25000,500,3),('regular','Regular',1000,50000,2500,4),
- ('big_man','Big Man',2500,125000,12500,5),('odogwu','Odogwu',5000,250000,37500,6)
+ ('street','Street',500,25000,250,3),('regular','Regular',1000,50000,1500,4),
+ ('big_man','Big Man',2500,125000,5000,5),('odogwu','Odogwu',5000,250000,15000,6)
 on conflict(package_key) do update set name=excluded.name,amount_ngn=excluded.amount_ngn,base_ac=excluded.base_ac,bonus_ac=excluded.bonus_ac,sort_order=excluded.sort_order;
 create table if not exists private.area_payment_orders (
  id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete restrict,
