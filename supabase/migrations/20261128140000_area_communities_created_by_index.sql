@@ -1,0 +1,1 @@
+create index if not exists area_communities_created_by_idx on public.area_communities(created_by);
