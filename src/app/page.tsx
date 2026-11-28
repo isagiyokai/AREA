@@ -32,7 +32,7 @@ export default async function Home() {
   }
   if(user){const {data:blocks}=await supabase.from("user_blocks").select("blocked_user_id").eq("user_id",user.id);blockedUserIds=(blocks??[]).map(row=>row.blocked_user_id);}
   const blockedSet=new Set(blockedUserIds);
-  const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").order("created_at",{ascending:false}).limit(40);
+  const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").is("community_id",null).order("created_at",{ascending:false}).limit(40);
   if(postError)console.error("AREA street feed query failed:",postError.message);
   if(postData)posts=postData.filter(post=>!blockedSet.has(post.author_id)) as typeof posts;
   const unreadQuery=user
@@ -45,7 +45,7 @@ export default async function Home() {
   unreadCount=unread.count??0;
   if(user){
    const circleAuthors=[user.id,...(followRows.data??[]).map(row=>row.followed_id)];
-   const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("author_id",circleAuthors).order("created_at",{ascending:false}).limit(40);
+   const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("author_id",circleAuthors).is("community_id",null).order("created_at",{ascending:false}).limit(40);
    if(circleData)followingPosts=circleData.filter(post=>!blockedSet.has(post.author_id)) as typeof posts;
   }
   const quoteIds=Array.from(new Set([...posts,...followingPosts].flatMap(p=>p.quoted_post_id?[p.quoted_post_id]:[])));
@@ -66,7 +66,7 @@ export default async function Home() {
     <Link href="/leaderboard">Leaderboard</Link><Link href="/wolves">Community court</Link>
     {signedIn&&<Link href="/bookmarks">Saved</Link>}{signedIn&&<Link href="/messages">Messages</Link>}{signedIn&&<Link href="/wallet">AC Wallet</Link>}
     <Link href="/market">Market</Link>
-    <Link href="/territories">Territories</Link>
+    <Link href="/territories">Territories</Link><Link href="/society">Society</Link>
    </nav>
    <div className="top-actions">
     {signedIn?<Link href="/account" className="account-link">My account{unreadCount>0?<span className="nav-notice">{unreadCount>9?"9+":unreadCount}</span>:""} ↗</Link>:<Link href="/login" className="account-link">Sign in</Link>}
@@ -96,8 +96,8 @@ export default async function Home() {
      <Link className="rail-link" href="/leaderboard"><span>04</span> Street leaderboard</Link><Link className="rail-link" href="/wolves"><span>07</span> Community court</Link>
      {signedIn&&<Link className="rail-link" href="/bookmarks"><span>04</span> Saved posts</Link>}{signedIn&&<Link className="rail-link" href="/messages"><span>05</span> Private messages</Link>}{signedIn&&<Link className="rail-link" href="/wallet"><span>06</span> AC Wallet</Link>}
      <Link className="rail-link" href="/market"><span>08</span> AREA Market</Link>
-     <div className="rail-link rail-soon"><span>04</span> Territories <small>SOON</small></div>
-     <div className="rail-link rail-soon"><span>05</span> Society <small>SOON</small></div>
+     <Link className="rail-link" href="/territories"><span>09</span> Territories</Link>
+     <Link className="rail-link" href="/society"><span>10</span> Society</Link>
     </div>
     <div className="rail-block start-block">
      <span className="mini-label">NEW AROUND HERE?</span>
