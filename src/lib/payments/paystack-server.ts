@@ -36,9 +36,15 @@ export async function verifyAndCreditPaystack(reference: string) {
   if (!response.ok || !verified.status || !payment) {
     throw new Error(verified.message || "Paystack could not verify this payment.");
   }
+  if (payment.reference !== reference) {
+    throw new Error("Paystack returned a different payment reference.");
+  }
+  if (payment.status === "failed" || payment.status === "abandoned") {
+    await markPaystackPaymentFailed(reference, payment.status);
+    throw new Error("The payment did not complete. You can try again.");
+  }
   if (
     payment.status !== "success" ||
-    payment.reference !== reference ||
     payment.currency !== "NGN" ||
     !Number.isSafeInteger(payment.amount) ||
     payment.amount <= 0
@@ -70,4 +76,18 @@ export async function verifyAndCreditPaystack(reference: string) {
     total_ac: number;
     balance_ac?: number;
   };
+}
+
+export async function markPaystackPaymentFailed(reference: string, reason: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) throw new Error("Payment settlement is not configured.");
+  const admin = createSupabaseClient(supabaseUrl, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const { error } = await admin.rpc("fail_ac_payment_order", {
+    p_reference: reference,
+    p_reason: reason.slice(0, 160),
+  });
+  if (error) throw new Error(error.message);
 }
