@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
 type Community={id:string;name:string;slug:string;description:string;created_at:string;created_by:string;member_count:number;creator:{username:string;display_name:string}|null};
 export default function SocietyHub({communities,memberIds,currentUserId,signedIn}:{communities:Community[];memberIds:string[];currentUserId:string|null;signedIn:boolean}){
@@ -9,7 +9,7 @@ export default function SocietyHub({communities,memberIds,currentUserId,signedIn
  const [name,setName]=useState(""),[slug,setSlug]=useState(""),[description,setDescription]=useState(""),[slugEdited,setSlugEdited]=useState(false);
  const [busy,setBusy]=useState<string|null>(null),[error,setError]=useState(""),[message,setMessage]=useState(""),[joined,setJoined]=useState(memberIds);
  function changeName(value:string){setName(value);if(!slugEdited)setSlug(value.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48));}
- async function createCommunity(e:React.FormEvent<HTMLFormElement>){e.preventDefault();if(!signedIn){router.push("/login");return;}setBusy("create");setError("");setMessage("");try{const sb=createClient();const {data,error}=await sb.rpc("create_area_community",{p_name:name.trim(),p_slug:slug.trim(),p_description:description.trim()});if(error)throw error;router.push("/society/"+encodeURIComponent(slug.trim()));}catch(e){setError(e instanceof Error?e.message:"Could not create community.");}finally{setBusy(null);}}
+ async function createCommunity(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!signedIn){router.push("/login");return;}setBusy("create");setError("");setMessage("");try{const sb=createClient();const {data,error}=await sb.rpc("create_area_community",{p_name:name.trim(),p_slug:slug.trim(),p_description:description.trim()});if(error)throw error;router.push("/society/"+encodeURIComponent(slug.trim()));}catch(e){setError(e instanceof Error?e.message:"Could not create community.");}finally{setBusy(null);}}
  async function join(id:string){if(!signedIn){router.push("/login");return;}setBusy(id);setError("");setMessage("");try{const sb=createClient();const {error}=await sb.rpc("join_area_community",{p_community_id:id});if(error)throw error;setJoined(v=>[...v,id]);setMessage("You're in. Welcome to the community.");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Could not join this community.");}finally{setBusy(null);}}
  async function leave(id:string){setBusy(id);setError("");setMessage("");try{const sb=createClient();const {error}=await sb.from("area_community_members").delete().eq("community_id",id).eq("user_id",currentUserId).eq("role","member");if(error)throw error;setJoined(v=>v.filter(x=>x!==id));setMessage("You have left the community.");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Could not leave this community.");}finally{setBusy(null);}}
  return <div className="society-layout">
