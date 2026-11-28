@@ -485,3 +485,5 @@ button{color:inherit}
 .wallet-payment-note{display:block;margin-top:14px;color:var(--muted)}
 @media(max-width:760px){.wallet-package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wallet-topup{padding:16px}}
 @media(max-width:420px){.wallet-package-grid{grid-template-columns:1fr}}
+
+.wallet-package-bonus{color:var(--green);font-weight:700}
