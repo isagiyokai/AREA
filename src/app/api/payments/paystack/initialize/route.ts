@@ -7,7 +7,9 @@ export async function POST(request: Request) {
   try {
     const secret = process.env.PAYSTACK_SECRET_KEY;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!secret || !serviceRoleKey) {
+    const webhookSecret = process.env.PAYSTACK_WEBHOOK_SECRET;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (!secret || !serviceRoleKey || !webhookSecret || !siteUrl) {
       return NextResponse.json({ error: "AREA checkout is not configured yet. No payment has been taken." }, { status: 503 });
     }
     const supabase = await createClient();
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
       order = data;
     }
     const checkout = order as { reference: string; amount_ngn: number; total_ac: number; order_type?: string; tier_key?: string };
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+    const origin = siteUrl;
     const response = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
       headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
