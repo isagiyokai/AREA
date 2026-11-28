@@ -50,6 +50,10 @@ Base conversion stays at 50 AC per ₦1. Bonuses are promotional and are recorde
 | Regular | ₦1,000 | 50,000 | 1,500 | 3% |
 | Big Man | ₦2,500 | 125,000 | 5,000 | 4% |
 | Odogwu | ₦5,000 | 250,000 | 15,000 | 6% |
+| Don | ₦10,000 | 500,000 | 35,000 | 7% |
+| Big Don | ₦15,000 | 750,000 | 56,250 | 7.5% |
+| Billionaire Pack | ₦25,000 | 1,250,000 | 100,000 | 8% |
+| Tycoon | ₦50,000 | 2,500,000 | 225,000 | 9% |
 
 The ₦100 minimum is deliberate: a citizen can make a small, one-off purchase without being pushed into a subscription. Bonuses are conservative because a large bonus plus payment processing fees can consume the contribution margin before hosting, moderation, support, tax and refunds are considered.
 
@@ -175,6 +179,20 @@ Use Paystack test keys first. Do not paste secret keys into chat, GitHub, source
 8. Only then run controlled price experiments. Change one variable at a time; do not alter the 50 AC/₦1 reference while testing item prices or package bonuses.
 
 
+## 10. First-party behavioural instrumentation
+
+AREA now records authenticated, first-party economy funnel events in a private table. The initial event set is deliberately narrow:
+- wallet page view;
+- per-package impression;
+- per-package checkout click;
+- gift transfer attempt.
+
+The event RPC accepts only an allowlisted event name and a short package key, applies per-user duplicate suppression and rate limiting, and stores no payment credentials, note text, recipient username or free-form metadata. Citizens can insert and inspect only their own throttle rows; owner analytics are returned as aggregates through an owner-gated RPC.
+
+The owner console reports 7-day wallet views and package interest, 30-day unique wallet viewers, package impressions/clickers, gift volume and participants, market purchases and Gbas Gbos fees. It explicitly separates interest signals from completed purchases. Completed AC transfers and sinks remain authoritative in the private ledger; actual naira revenue remains authoritative in verified payment orders.
+
+The first dashboard values are expected to be zero until real citizens use the wallet. Do not seed fake activity. After the first cohort arrives, compare impressions → checkout clicks → verified payments by package, then analyse repeat purchase behaviour and AC circulation. A checkout click is not a purchase.
+
 ## 11. Scale reality check
 
 These are sensitivity scenarios, not forecasts. They assume the stated share of monthly active users buys AC every month at the stated average spend. They exclude one-time entry revenue, processor fees, bonus-credit dilution, taxes, refunds and operating costs.
@@ -192,4 +210,4 @@ The paid entry tiers are one-time revenue, not a recurring revenue engine. Recur
 
 ## 12. Pricing decisions are hypotheses
 
-The first price ladder intentionally tests low-cost, one-off purchases. The research supports price sensitivity, high priority for essentials and the importance of reliability and trust. It does not prove that AREA users will pay these prices. The first 100–500 real users should determine the next revision through observed conversion and repeat behaviour, not founder intuition or competitor revenue headlines.
+The price ladder offers low-cost entry purchases alongside higher-value bundles for highly engaged citizens. The research supports price sensitivity, high priority for essentials and the importance of reliability and trust. It does not prove that AREA users will pay these prices. The first 100–500 real users should determine the next revision through observed conversion and repeat behaviour, not founder intuition or competitor revenue headlines.
