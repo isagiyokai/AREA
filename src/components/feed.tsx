@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import BlockCitizen from "@/components/block-citizen";
 type Profile={username:string;display_name:string;area_class:string|null};
 type Person={username:string;display_name:string};
-type Post={id:string;content:string;created_at:string;author_id:string;community_id?:string|null;quoted_post_id?:string|null;profiles:Profile|Profile[]|null;quoted_post?:QuotePost|QuotePost[]|null};
+type Post={id:string;content:string;created_at:string;author_id:string;community_id?:string|null;quoted_post_id?:string|null;profiles:Profile|Profile[]|null;quoted_post?:QuotePost|QuotePost[]|null;reposted_by?:Profile|Profile[]|null;reposted_at?:string|null};
 type Reply={id:string;post_id:string;content:string;created_at:string;author_id:string;profiles:Profile|Profile[]|null};
 type QuotePost={id:string;content:string;created_at:string;author_id:string;profiles:Profile|Profile[]|null};
 type PollOption={id:string;option_text:string;position:number};
