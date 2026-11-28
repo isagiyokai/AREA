@@ -2,7 +2,7 @@
 import { useEffect,useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type LedgerItem={id:string;amount_ac:number;transaction_type:string;note:string|null;created_at:string;direction:"in"|"out";counterparty:string};
+type LedgerItem={id:string;amount_ac:number;transaction_type:string;note:string|null;created_at:string;direction:"in"|"out";counterparty:string;payment_reference?:string|null;payment_amount_ngn?:number|null;payment_order_type?:string|null};
 type Wallet={balance_ac:number;history:LedgerItem[]};
 type Package={package_key:string;name:string;amount_ngn:number;base_ac:number;bonus_ac:number;sort_order:number};
 const fmt=(n:number)=>new Intl.NumberFormat("en-NG").format(n);
@@ -44,7 +44,7 @@ export default function AcWalletPanel({initialWallet,paymentsEnabled}:{initialWa
    {message&&<p className="wallet-success">{message}</p>}{error&&<p className="error">{error}</p>}
   </section>
   <section className="wallet-history"><div className="wallet-section-head"><div><span className="mini-label">MONEY MOVES</span><h2>Recent transactions</h2></div><span className="wallet-index">LAST 40</span></div>
-   {!wallet?.history?.length?<p className="notice">Nothing has moved yet. Your AC activity will appear here.</p>:<div className="wallet-ledger">{wallet.history.map(item=><article className="wallet-ledger-row" key={item.id}><div><strong>{item.transaction_type==="gift"?(item.direction==="in"?"Gift received":"Gift sent"):item.transaction_type.replaceAll("_"," ")}</strong><small>{item.direction==="in"?"From":"To"} {item.counterparty}{item.note?" · "+item.note:""}</small><time>{new Date(item.created_at).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"})}</time></div><b className={item.direction==="in"?"credit":"debit"}>{item.direction==="in"?"+":"−"}{fmt(item.amount_ac)} AC{acPerNgn>0&&<small>≈ ₦{fmt(item.amount_ac/acPerNgn)}</small>}</b></article>)}</div>}
+   {!wallet?.history?.length?<p className="notice">Nothing has moved yet. Your AC activity will appear here.</p>:<div className="wallet-ledger">{wallet.history.map(item=><article className="wallet-ledger-row" key={item.id}><div><strong>{item.transaction_type==="gift"?(item.direction==="in"?"Gift received":"Gift sent"):item.transaction_type.replaceAll("_"," ")}</strong><small>{item.direction==="in"?"From":"To"} {item.counterparty}{item.note?" · "+item.note:""}</small>{item.payment_reference&&<small>Receipt: {item.payment_reference} · Paid ₦{fmt(item.payment_amount_ngn??0)}</small>}<time>{new Date(item.created_at).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"})}</time></div><b className={item.direction==="in"?"credit":"debit"}>{item.direction==="in"?"+":"−"}{fmt(item.amount_ac)} AC{acPerNgn>0&&<small>≈ ₦{fmt(item.amount_ac/acPerNgn)}</small>}</b></article>)}</div>}
   </section>
   <p className="wallet-footnote">AC is an internal AREA currency. Naira figures are reference equivalents only, not redeemable cash value. Purchased AC, package bonuses and earned rewards are recorded as separate ledger entries. No cash-out is available.</p>
  </div>;
