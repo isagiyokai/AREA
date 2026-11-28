@@ -1,0 +1,18 @@
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import EventsBoard from "@/components/events-board";
+export const dynamic="force-dynamic";
+type EventRow={id:string;title:string;description:string;event_type:string;starts_at:string;ends_at:string|null;location_label:string;community_id:string|null;created_by:string;creator:{username:string;display_name:string}|{username:string;display_name:string}[]|null;community:{name:string;slug:string}|{name:string;slug:string}[]|null};
+export default async function EventsPage(){
+ const supabase=await createClient();let currentUserId:string|null=null;
+ if(supabase){const {data:{user}}=await supabase.auth.getUser();currentUserId=user?.id??null;}
+ let raw:EventRow[]=[];let communities:{id:string;name:string;slug:string}[]=[];let myRsvps:{event_id:string;status:"going"|"interested"}[]=[];
+ if(supabase){const {data}=await supabase.from("area_events").select("id,title,description,event_type,starts_at,ends_at,location_label,community_id,created_by,creator:profiles!area_events_created_by_fkey(username,display_name),community:area_communities!area_events_community_id_fkey(name,slug)").order("starts_at",{ascending:true}).limit(100);raw=(data??[]) as unknown as EventRow[];const {data:communityRows}=await supabase.from("area_communities").select("id,name,slug").order("name");communities=(communityRows??[]) as typeof communities;if(currentUserId){const ids=raw.map(e=>e.id);if(ids.length){const {data:rows}=await supabase.from("area_event_rsvps").select("event_id,status").eq("user_id",currentUserId).in("event_id",ids);myRsvps=(rows??[]) as typeof myRsvps;}}}
+ const {data:counts}=supabase?await supabase.rpc("get_area_event_counts"):{data:[] as {event_id:string;going_count:number;interested_count:number}[]};const countMap=new Map((counts??[]).map(row=>[row.event_id,{going:Number(row.going_count),interested:Number(row.interested_count)}]));
+ const events=raw.map(e=>{const tally=countMap.get(e.id)??{going:0,interested:0};return {...e,creator:Array.isArray(e.creator)?e.creator[0]??null:e.creator,community:Array.isArray(e.community)?e.community[0]??null:e.community,going_count:tally.going,interested_count:tally.interested};});
+ return <main className="shell events-shell"><header className="top"><Link href="/" className="brand">AREA<span>.</span></Link><nav className="nav"><Link href="/">The street</Link><Link href="/gbas-gbos">Gbas Gbos</Link><Link href="/explore">Explore</Link><Link href="/society">Society</Link><Link className="nav-current" href="/events">Events</Link></nav><div className="top-actions"><Link className="account-link" href={currentUserId?"/account":"/login"}>{currentUserId?"My account":"Sign in"}</Link></div></header>
+ <section className="events-masthead"><span className="eyebrow">AREA / WHAT'S ON</span><h1>Don't just scroll.<br/><em>Show up.</em></h1><p>Watch parties, campus gatherings, meet-ups, online sessions and community events. The street is better when people actually meet around something.</p></section>
+ <div className="section-rule"><span>THE AREA CALENDAR</span><span>HOSTED BY CITIZENS</span></div>
+ <EventsBoard events={events} communities={communities} myRsvps={myRsvps} currentUserId={currentUserId} signedIn={!!currentUserId}/>
+ <footer className="site-footer"><span>AREA / EVENTS</span><span>Make something happen.</span><Link href="/">Back to the street ↗</Link></footer></main>;
+}
