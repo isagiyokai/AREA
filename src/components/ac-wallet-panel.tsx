@@ -11,12 +11,13 @@ export default function AcWalletPanel({initialWallet,paymentsEnabled}:{initialWa
  async function refresh(){const sb=createClient();const {data,error}=await sb.rpc("get_my_ac_wallet");if(error)throw error;setWallet(data as Wallet);setLoading(false);}
  useEffect(()=>{
   const sb=createClient();
+  void sb.rpc("track_area_economy_event",{p_event_name:"wallet_view"}).then(()=>undefined);
   void Promise.all([
    sb.from("area_economy_settings").select("setting_value").eq("setting_key","ac_per_ngn").maybeSingle(),
    sb.from("area_ac_packages").select("package_key,name,amount_ngn,base_ac,bonus_ac,sort_order").eq("active",true).order("sort_order")
   ]).then(([rateResult,packageResult])=>{
    setAcPerNgn(Number(rateResult.data?.setting_value)||0);
-   if(!packageResult.error)setPackages((packageResult.data??[]) as Package[]);
+   if(!packageResult.error){const loadedPackages=(packageResult.data??[]) as Package[];setPackages(loadedPackages);void Promise.all(loadedPackages.map(item=>sb.rpc("track_area_economy_event",{p_event_name:"package_impression",p_object_key:item.package_key}))).then(()=>undefined);}
   });
   const paymentStatus=new URLSearchParams(window.location.search).get("payment");
   if(paymentStatus==="success"){setMessage("Payment verified. Your AC has been credited.");void refresh().catch(e=>setError(e instanceof Error?e.message:"Wallet refresh failed."));}
@@ -24,6 +25,7 @@ export default function AcWalletPanel({initialWallet,paymentsEnabled}:{initialWa
   if(!initialWallet)void refresh().catch(e=>{setError(e instanceof Error?e.message:"Wallet unavailable.");setLoading(false);});
  },[]);
  async function buy(packageKey:string){
+  const analyticsClient=createClient();void analyticsClient.rpc("track_area_economy_event",{p_event_name:"package_checkout_click",p_object_key:packageKey}).then(()=>undefined);
   setTopupBusy(packageKey);setError("");setMessage("");
   try{
    const response=await fetch("/api/payments/paystack/initialize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({package_key:packageKey})});
@@ -32,7 +34,7 @@ export default function AcWalletPanel({initialWallet,paymentsEnabled}:{initialWa
    window.location.assign(result.authorization_url);
   }catch(e){setError(e instanceof Error?e.message:"Checkout could not be started.");setTopupBusy(null);}
  }
- async function send(){setBusy(true);setError("");setMessage("");try{const sb=createClient();const {data,error}=await sb.rpc("transfer_ac",{p_recipient_username:username.trim().replace(/^@/,""),p_amount:Number(amount),p_note:note.trim()||null});if(error)throw error;const result=data as {balance_ac:number;amount_ac:number;recipient_username:string};setMessage(`Sent ${fmt(result.amount_ac)} AC to @${result.recipient_username}.`);setUsername("");setAmount("");setNote("");await refresh();}catch(e){setError(e instanceof Error?e.message:"Transfer could not be completed.");}finally{setBusy(false);}}
+ async function send(){setBusy(true);setError("");setMessage("");try{const sb=createClient();void sb.rpc("track_area_economy_event",{p_event_name:"gift_transfer_attempt"}).then(()=>undefined);const {data,error}=await sb.rpc("transfer_ac",{p_recipient_username:username.trim().replace(/^@/,""),p_amount:Number(amount),p_note:note.trim()||null});if(error)throw error;const result=data as {balance_ac:number;amount_ac:number;recipient_username:string};setMessage(`Sent ${fmt(result.amount_ac)} AC to @${result.recipient_username}.`);setUsername("");setAmount("");setNote("");await refresh();}catch(e){setError(e instanceof Error?e.message:"Transfer could not be completed.");}finally{setBusy(false);}}
  return <div className="wallet-layout">
   <section className="wallet-balance"><span className="mini-label">YOUR AVAILABLE BALANCE</span><div className="wallet-amount">{loading?"…":fmt(wallet?.balance_ac??0)} <small>AC</small></div><p>AREA currency · kept inside the society</p>{acPerNgn>0&&<small>≈ ₦{fmt((wallet?.balance_ac??0)/acPerNgn)} reference value · not cash value</small>}<div className="wallet-balance-foot"><span>NO CASH VALUE YET</span><span>WALLET / 001</span></div></section>
   <section className="wallet-topup"><div className="wallet-section-head"><div><span className="mini-label">ADD TO YOUR WALLET</span><h2>Buy AREA Credits</h2></div><span className="wallet-index">02 / TOP UP</span></div><p>One naira maps to 50 AC. Larger packages include a clearly listed bonus. No subscription and no automatic renewal.</p><div className="wallet-package-grid">{packages.map(item=><article className="wallet-package" key={item.package_key}><span className="mini-label">{item.name.toUpperCase()}</span><strong>₦{fmt(item.amount_ngn)}</strong><b>{fmt(item.base_ac+item.bonus_ac)} AC</b><small>{fmt(item.base_ac)} base AC{item.bonus_ac>0?` + ${fmt(item.bonus_ac)} bonus`:""}</small>{item.bonus_ac>0&&<small className="wallet-package-bonus">{Math.round(item.bonus_ac/item.base_ac*100)}% package bonus</small>}<button className="btn primary" disabled={!paymentsEnabled||topupBusy!==null} onClick={()=>void buy(item.package_key)}>{topupBusy===item.package_key?"Opening…":paymentsEnabled?"Buy AC ↗":"Checkout not connected"}</button></article>)}</div>{!paymentsEnabled&&<small className="wallet-payment-note">Payment checkout is built but not activated. It will open after the server payment keys and webhook are configured.</small>}</section>
