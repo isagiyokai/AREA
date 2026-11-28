@@ -9,8 +9,8 @@ export async function POST(request: Request) {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const webhookSecret = process.env.PAYSTACK_WEBHOOK_SECRET;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-    if (!secret || !serviceRoleKey || !webhookSecret || !siteUrl) {
-      return NextResponse.json({ error: "AREA checkout is not configured yet. No payment has been taken." }, { status: 503 });
+    if (process.env.AREA_PAYMENTS_ENABLED !== "true" || !secret || !serviceRoleKey || !webhookSecret || !siteUrl) {
+      return NextResponse.json({ error: "AREA checkout is disabled or not fully configured. No payment has been taken." }, { status: 503 });
     }
     const supabase = await createClient();
     if (!supabase) return NextResponse.json({ error: "Authentication is unavailable." }, { status: 503 });
