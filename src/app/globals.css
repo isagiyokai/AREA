@@ -567,3 +567,5 @@ button{color:inherit}
 .events-past-head{margin-top:30px}
 @media(max-width:850px){.events-layout{grid-template-columns:1fr}.event-create-panel{grid-row:1}.events-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.events-masthead{padding:32px 0 24px}.events-layout{padding-top:18px}.events-grid{grid-template-columns:1fr}}
+
+.repost-banner{display:flex;align-items:center;gap:6px;margin:0 0 9px 48px;color:var(--green);font:9px 'Courier New',monospace;letter-spacing:.3px}
