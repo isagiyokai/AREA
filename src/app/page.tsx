@@ -66,7 +66,7 @@ export default async function Home() {
     <Link href="/leaderboard">Leaderboard</Link><Link href="/wolves">Community court</Link>
     {signedIn&&<Link href="/bookmarks">Saved</Link>}{signedIn&&<Link href="/messages">Messages</Link>}{signedIn&&<Link href="/wallet">AC Wallet</Link>}
     <Link href="/market">Market</Link>
-    <Link href="/territories">Territories</Link><Link href="/society">Society</Link>
+    <Link href="/territories">Territories</Link><Link href="/society">Society</Link><Link href="/events">Events</Link>
    </nav>
    <div className="top-actions">
     {signedIn?<Link href="/account" className="account-link">My account{unreadCount>0?<span className="nav-notice">{unreadCount>9?"9+":unreadCount}</span>:""} ↗</Link>:<Link href="/login" className="account-link">Sign in</Link>}
@@ -98,6 +98,7 @@ export default async function Home() {
      <Link className="rail-link" href="/market"><span>08</span> AREA Market</Link>
      <Link className="rail-link" href="/territories"><span>09</span> Territories</Link>
      <Link className="rail-link" href="/society"><span>10</span> Society</Link>
+     <Link className="rail-link" href="/events"><span>11</span> Events</Link>
     </div>
     <div className="rail-block start-block">
      <span className="mini-label">NEW AROUND HERE?</span>
