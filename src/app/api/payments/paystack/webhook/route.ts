@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import { verifyAndCreditPaystack } from "@/lib/payments/paystack-server";
+import { markPaystackPaymentFailed, verifyAndCreditPaystack } from "@/lib/payments/paystack-server";
 
 export const runtime = "nodejs";
 
@@ -29,10 +29,18 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid webhook payload." }, { status: 400 });
   }
-  if (event.event !== "charge.success") return NextResponse.json({ received: true });
   const reference = event.data?.reference;
+  if (event.event === "charge.failed") {
+    if (!reference) return NextResponse.json({ error: "Missing payment reference." }, { status: 400 });
+    try {
+      await markPaystackPaymentFailed(reference, "Paystack charge.failed event");
+      return NextResponse.json({ received: true });
+    } catch {
+      return NextResponse.json({ error: "Could not mark failed payment." }, { status: 500 });
+    }
+  }
+  if (event.event !== "charge.success") return NextResponse.json({ received: true });
   if (!reference) return NextResponse.json({ error: "Missing payment reference." }, { status: 400 });
-
   try {
     await verifyAndCreditPaystack(reference);
     return NextResponse.json({ received: true });
