@@ -73,7 +73,7 @@ Escalation prices are incremental: level 1 → 2 costs 500 AC; level 2 → 3 cos
 | Starting tier | Entry price | Starting AC | Daily callout limit | Daily escalation limit |
 |---|---:|---:|---:|---:|
 | Slums | Free | 0 | 10 | 2 |
-| Lapo — Hustler | ₦1,000 | 5,000 | 10 | 4 |
+| Lapo Starter | ₦1,000 | 5,000 | 10 | 4 |
 | Lapo — Senior Man | ₦2,000 | 10,000 | 10 | 6 |
 | Nepo — Odogwu | ₦5,000 | 25,000 | 10 | 8 |
 
@@ -174,6 +174,22 @@ Use Paystack test keys first. Do not paste secret keys into chat, GitHub, source
 7. Invite a small first cohort; measure D1/D7/D30 retention, payer conversion, repeat payer rate, average order value, revenue per payer, package mix, AC spend velocity, market purchase rate, escalation usage, refund rate and chargeback rate.
 8. Only then run controlled price experiments. Change one variable at a time; do not alter the 50 AC/₦1 reference while testing item prices or package bonuses.
 
-## 10. Pricing decisions are hypotheses
+
+## 11. Scale reality check
+
+These are sensitivity scenarios, not forecasts. They assume the stated share of monthly active users buys AC every month at the stated average spend. They exclude one-time entry revenue, processor fees, bonus-credit dilution, taxes, refunds and operating costs.
+
+| Monthly active users | Payer conversion | Paying users | Average monthly spend | Gross monthly receipts | Annualized gross |
+|---:|---:|---:|---:|---:|---:|
+| 1,000 | 1% | 10 | ₦100 | ₦1,000 | ₦12,000 |
+| 10,000 | 3% | 300 | ₦500 | ₦150,000 | ₦1.8m |
+| 100,000 | 5% | 5,000 | ₦1,000 | ₦5m | ₦60m |
+| 1,000,000 | 5% | 50,000 | ₦1,000 | ₦50m | ₦600m |
+
+At ₦1,000 average monthly spend and 5% payer conversion, ₦5bn in annual gross receipts requires roughly 8.33 million monthly active users. At ₦500 average monthly spend, it requires about 16.67 million monthly active users. At 2% conversion, the required audience is 2.5 times larger. This is why the product's retention, organic distribution and trust matter more than squeezing another ₦50 out of an early cosmetic.
+
+The paid entry tiers are one-time revenue, not a recurring revenue engine. Recurring revenue must come from voluntary top-ups and repeat purchases that citizens genuinely value.
+
+## 12. Pricing decisions are hypotheses
 
 The first price ladder intentionally tests low-cost, one-off purchases. The research supports price sensitivity, high priority for essentials and the importance of reliability and trust. It does not prove that AREA users will pay these prices. The first 100–500 real users should determine the next revision through observed conversion and repeat behaviour, not founder intuition or competitor revenue headlines.
