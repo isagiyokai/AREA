@@ -8,7 +8,7 @@
 1. AREA is a social product first. Reading, posting, replying, messaging and ordinary participation must not require a purchase.
 2. AC is internal AREA credit. The current reference is **₦1 = 50 AC**. The naira figure is a pricing reference, not a redemption promise.
 3. No cash-out, interest, yield, investment claim, automatic renewal or recurring subscription.
-4. Show the full naira charge, AC received, bonus AC, processor fee policy and transaction receipt before/after payment.
+4. Show one all-in naira price, the AC received and bonus AC. The customer pays exactly the displayed amount; AREA absorbs provider fees and other transaction surcharges within its margin. Receipts show the amount the customer actually paid.
 5. Never credit AC from a browser redirect alone. The server must verify the payment with Paystack and settle it idempotently.
 6. Treat unspent AC as outstanding customer credit, not as cash revenue or profit.
 7. Do not tune prices from global app-store data as if it were AREA conversion data. Use those data only as external anchors, then validate with AREA cohorts.
@@ -55,7 +55,7 @@ Base conversion stays at 50 AC per ₦1. Bonuses are promotional and are recorde
 | Billionaire Pack | ₦25,000 | 1,250,000 | 100,000 | 8% |
 | Tycoon | ₦50,000 | 2,500,000 | 225,000 | 9% |
 
-The ₦100 minimum is deliberate: a citizen can make a small, one-off purchase without being pushed into a subscription. Bonuses are conservative because a large bonus plus payment processing fees can consume the contribution margin before hosting, moderation, support, tax and refunds are considered.
+The ₦100 minimum is deliberate: a citizen can make a small, one-off purchase without being pushed into a subscription. The displayed bundle price is the final customer price. AREA absorbs processor fees and applicable transaction costs; these costs reduce AREA's net proceeds, not the amount of AC the customer receives. Bonus levels must be modelled against the net proceeds remaining after those costs.
 
 ### Digital goods and mechanics
 
@@ -85,7 +85,7 @@ Paid entry starting AC is 10% of the entry fee at the current reference conversi
 
 ## 4. Payment processing and contribution margin
 
-Paystack's published local payment pricing is 1.5% plus ₦100, with the fixed ₦100 component waived for transactions below ₦2,500 and a cap on the fee. At exactly ₦2,500, do not assume the fixed component is waived. The exact fee returned on each verified transaction is stored in the payment order.
+Paystack's published local payment pricing is 1.5% plus ₦100, with the fixed ₦100 component waived for transactions below ₦2,500 and a cap on the fee. At exactly ₦2,500, do not assume the fixed component is waived. **AREA pays this fee. It is never added to the customer's displayed bundle price at checkout.** The exact fee returned on each verified transaction is stored in the payment order and deducted from AREA's proceeds.
 
 Illustrative processor cost using the published schedule:
 
@@ -98,7 +98,7 @@ Illustrative processor cost using the published schedule:
 | ₦2,500 | ₦137.50 | ₦2,362.50 |
 | ₦5,000 | ₦175.00 | ₦4,825.00 |
 
-These are illustrations, not settlement guarantees. Actual fee amounts from Paystack verification are stored in kobo and shown in the owner treasury. Net-after-processor-fees is still not profit: taxes, refunds, chargebacks, hosting, support, moderation and other operating costs remain to be deducted.
+These are illustrations, not settlement guarantees. The customer pays only the listed bundle price; the fee is an AREA operating cost. Actual fee amounts from Paystack verification are stored in kobo and shown in the owner treasury. Net-after-processor-fees is still not profit: applicable taxes, refunds, chargebacks, hosting, support, moderation and other operating costs remain to be deducted. Customer-facing prices are all-in; applicable tax obligations are provisioned from AREA's proceeds rather than appended as checkout surprises.
 
 Paystack merchant terms place responsibility for the merchant's products, customer support, KYC information, delivery, refunds and compliance on the merchant. AREA must have a clear customer-support and refund process before live collection.
 - https://paystack.ng/terms
@@ -112,7 +112,7 @@ Paystack merchant terms place responsibility for the merchant's products, custom
 - Payment orders store the NGN amount, AC amounts, provider reference, Paystack transaction ID, verified fee, status and payment timestamp.
 - Duplicate callbacks/webhooks cannot credit the same order twice.
 - The citizen wallet shows payment receipt references.
-- The owner treasury reports gross top-ups, paid-entry revenue, processor fees, net after processor fees, outstanding AC, unique payers, repeat payer rate, average payment, revenue per payer and 30-day activity.
+- The owner treasury reports gross customer payments at the displayed all-in price, paid-entry revenue, AREA-absorbed processor fees, net after processor fees, outstanding AC, unique payers, repeat payer rate, average payment, revenue per payer and 30-day activity.
 
 **Outstanding AC is a liability/unused credit balance, not cash profit.** AC transfers move balances between citizens; they do not create revenue. Only verified NGN payments create gross cash receipts.
 
@@ -173,7 +173,7 @@ Use Paystack test keys first. Do not paste secret keys into chat, GitHub, source
 2. Send the same success webhook twice; confirm only one credit.
 3. Test failed and abandoned payments; confirm no AC is issued and the order is released for retry.
 4. Test amount/currency mismatch and invalid webhook signatures; confirm rejection.
-5. Confirm wallet receipt, owner gross revenue, processor fee and net-after-fee match the Paystack verification record.
+5. Confirm the customer receipt equals the displayed price, while owner gross receipts, absorbed processor fee and net-after-fee match the Paystack verification record.
 6. Test refund and chargeback procedures before enabling live payments.
 7. Invite a small first cohort; measure D1/D7/D30 retention, payer conversion, repeat payer rate, average order value, revenue per payer, package mix, AC spend velocity, market purchase rate, escalation usage, refund rate and chargeback rate.
 8. Only then run controlled price experiments. Change one variable at a time; do not alter the 50 AC/₦1 reference while testing item prices or package bonuses.
