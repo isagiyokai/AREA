@@ -472,3 +472,16 @@ button{color:inherit}
 
 .market-item-buy .market-naira-reference{display:block;margin-top:4px;font:9px 'Courier New',monospace;color:var(--muted)}
 .economy-naira-reference{display:block;margin-top:6px;font:9px 'Courier New',monospace;color:var(--muted)}
+
+
+.wallet-topup{grid-column:1/-1;background:var(--paper);border:1px solid var(--line);padding:24px}
+.wallet-topup>p{color:var(--muted);line-height:1.6;max-width:720px}
+.wallet-package-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.wallet-package{border:1px solid var(--line);background:#fffefa;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.wallet-package>strong{font-size:25px;letter-spacing:-1px}
+.wallet-package>b{font-size:18px}
+.wallet-package>small{color:var(--muted);min-height:18px}
+.wallet-package .btn{margin-top:8px;width:100%}
+.wallet-payment-note{display:block;margin-top:14px;color:var(--muted)}
+@media(max-width:760px){.wallet-package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wallet-topup{padding:16px}}
+@media(max-width:420px){.wallet-package-grid{grid-template-columns:1fr}}
