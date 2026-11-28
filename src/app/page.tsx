@@ -4,7 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import Feed from "@/components/feed";
 
 export const dynamic = "force-dynamic";
-type FeedPost={id:string;content:string;created_at:string;author_id:string;quoted_post_id:string|null;profiles:{username:string;display_name:string;area_class:string}[];quoted_post?:{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string}[]}|null};
+type FeedPost={id:string;content:string;created_at:string;author_id:string;quoted_post_id:string|null;profiles:{username:string;display_name:string;area_class:string|null}[];quoted_post?:{id:string;content:string;created_at:string;author_id:string;profiles:{username:string;display_name:string;area_class:string|null}[]}|null;reposted_by:{username:string;display_name:string;area_class:string|null}[]|null;reposted_at:string|null};
+type RepostRow={post_id:string;user_id:string;created_at:string;profiles:{username:string;display_name:string;area_class:string|null}[]|{username:string;display_name:string;area_class:string|null}|null};
+const profileOne=(v:RepostRow["profiles"])=>Array.isArray(v)?v[0]??null:v;
 
 export default async function Home() {
  const supabase=await createClient();
@@ -34,7 +36,16 @@ export default async function Home() {
   const blockedSet=new Set(blockedUserIds);
   const {data:postData,error:postError}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").is("community_id",null).order("created_at",{ascending:false}).limit(40);
   if(postError)console.error("AREA street feed query failed:",postError.message);
-  if(postData)posts=postData.filter(post=>!blockedSet.has(post.author_id)) as typeof posts;
+  if(postData)posts=postData.filter(post=>!blockedSet.has(post.author_id)).map(post=>({...post,reposted_by:null,reposted_at:null})) as typeof posts;
+  const {data:streetRepostRows}=await supabase.from("post_reposts").select("post_id,user_id,created_at,profiles!post_reposts_user_id_fkey(username,display_name,area_class)").order("created_at",{ascending:false}).limit(30);
+  const visibleStreetReposts=((streetRepostRows??[]) as unknown as RepostRow[]).filter(row=>!blockedSet.has(row.user_id));
+  const streetRepostIds=Array.from(new Set(visibleStreetReposts.map(row=>row.post_id)));
+  if(streetRepostIds.length){
+   const {data:repostedPosts}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("id",streetRepostIds).is("community_id",null);
+   const byId=new Map(posts.map(post=>[post.id,post]));for(const post of (repostedPosts??[]) as unknown as FeedPost[]){if(!blockedSet.has(post.author_id)&&!byId.has(post.id))byId.set(post.id,{...post,reposted_by:null,reposted_at:null});}
+   const latest=new Map<string,RepostRow>();for(const row of visibleStreetReposts){if(!latest.has(row.post_id))latest.set(row.post_id,row);}
+   posts=[...byId.values()].map(post=>{const row=latest.get(post.id);return row?{...post,reposted_by:profileOne(row.profiles)?[profileOne(row.profiles)!]:null,reposted_at:row.created_at}:post;}).sort((a,b)=>Date.parse(b.reposted_at??b.created_at)-Date.parse(a.reposted_at??a.created_at)).slice(0,40);
+  }
   const unreadQuery=user
    ?supabase.from("notifications").select("id",{count:"exact",head:true}).eq("recipient_id",user.id).is("read_at",null)
    :Promise.resolve({count:0,data:null,error:null});
@@ -46,7 +57,16 @@ export default async function Home() {
   if(user){
    const circleAuthors=[user.id,...(followRows.data??[]).map(row=>row.followed_id)];
    const {data:circleData}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("author_id",circleAuthors).is("community_id",null).order("created_at",{ascending:false}).limit(40);
-   if(circleData)followingPosts=circleData.filter(post=>!blockedSet.has(post.author_id)) as typeof posts;
+   if(circleData)followingPosts=circleData.filter(post=>!blockedSet.has(post.author_id)).map(post=>({...post,reposted_by:null,reposted_at:null})) as typeof posts;
+   const {data:circleRepostRows}=await supabase.from("post_reposts").select("post_id,user_id,created_at,profiles!post_reposts_user_id_fkey(username,display_name,area_class)").in("user_id",circleAuthors).order("created_at",{ascending:false}).limit(30);
+   const visibleCircleReposts=((circleRepostRows??[]) as unknown as RepostRow[]).filter(row=>!blockedSet.has(row.user_id));
+   const circleRepostIds=Array.from(new Set(visibleCircleReposts.map(row=>row.post_id)));
+   if(circleRepostIds.length){
+    const {data:repostedPosts}=await supabase.from("posts").select("id,content,created_at,author_id,quoted_post_id,profiles!posts_author_id_fkey(username,display_name,area_class)").in("id",circleRepostIds).is("community_id",null);
+    const byId=new Map(followingPosts.map(post=>[post.id,post]));for(const post of (repostedPosts??[]) as unknown as FeedPost[]){if(!blockedSet.has(post.author_id)&&!byId.has(post.id))byId.set(post.id,{...post,reposted_by:null,reposted_at:null});}
+    const latest=new Map<string,RepostRow>();for(const row of visibleCircleReposts){if(!latest.has(row.post_id))latest.set(row.post_id,row);}
+    followingPosts=[...byId.values()].map(post=>{const row=latest.get(post.id);return row?{...post,reposted_by:profileOne(row.profiles)?[profileOne(row.profiles)!]:null,reposted_at:row.created_at}:post;}).sort((a,b)=>Date.parse(b.reposted_at??b.created_at)-Date.parse(a.reposted_at??a.created_at)).slice(0,40);
+   }
   }
   const quoteIds=Array.from(new Set([...posts,...followingPosts].flatMap(p=>p.quoted_post_id?[p.quoted_post_id]:[])));
   if(quoteIds.length){
